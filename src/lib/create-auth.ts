@@ -110,7 +110,7 @@ export function createAuth({ db, secret, baseURL, sendEmail }: CreateAuthOptions
           after: async (session) => {
             await db.insert(schema.auditLogs).values({
               userId: session.userId,
-              action: "user.login",
+              action: "session.create",
               ipAddress: session.ipAddress ?? null,
               userAgent: session.userAgent ?? null,
             });

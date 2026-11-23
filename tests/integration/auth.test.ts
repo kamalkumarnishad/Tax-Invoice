@@ -121,7 +121,7 @@ describe("sign in", () => {
     const cookie = response.headers.getSetCookie().find((c) => c.includes("session_token"))!;
     expect(cookie).toMatch(/HttpOnly/i);
     expect(cookie).toMatch(/SameSite=Lax/i);
-    const logs = await db.select().from(auditLogs).where(eq(auditLogs.action, "user.login"));
+    const logs = await db.select().from(auditLogs).where(eq(auditLogs.action, "session.create"));
     expect(logs.length).toBeGreaterThan(0);
   });
 
