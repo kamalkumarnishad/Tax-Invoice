@@ -10,9 +10,26 @@ Next.js 15 (App Router), TypeScript, Tailwind CSS 4, shadcn/ui, Drizzle ORM, Pos
 
 ## Development
 
+Needs Node.js 22 or newer.
+
 ```bash
 npm install
 npm run dev
 ```
 
-Checks: `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`.
+No accounts or keys are needed. Without `DATABASE_URL` the app uses an embedded Postgres in `.pglite/` and
+applies migrations itself. Without `RESEND_API_KEY` emails, such as verification links, are printed in the
+terminal. Both are refused in production: see `.env.example` for what it requires.
+
+| Command | Does |
+| --- | --- |
+| `npm test` | Unit and integration tests, on an in-memory Postgres |
+| `npm run lint` / `npm run typecheck` | Static checks |
+| `npm run db:generate` | Create a migration from schema changes |
+| `npm run db:migrate` | Apply migrations to `DATABASE_URL` |
+
+## Data access
+
+User data is read and written through `withUser` (`src/lib/db.ts`). It runs each transaction as a restricted
+database role, so row level security keeps users apart even if a query forgets its filter. Give every new
+user-owned table a policy and a test in `tests/integration/row-level-security.test.ts`.
