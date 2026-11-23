@@ -80,7 +80,7 @@ export default async function DashboardPage() {
           title="Estimated tax"
           icon={Calculator}
           value={<span className="font-mono">—</span>}
-          note="Available with the tax calculator"
+          note="See the tax calculator"
         />
       </div>
       {summary.otherCurrencyRecords > 0 && (

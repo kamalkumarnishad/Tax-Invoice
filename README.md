@@ -28,6 +28,12 @@ terminal. Both are refused in production: see `.env.example` for what it require
 | `npm run db:generate` | Create a migration from schema changes |
 | `npm run db:migrate` | Apply migrations to `DATABASE_URL` |
 
+## Tax rules
+
+The rules, their sources and how sure each one is are in `docs/tax-rules-fy-2026-27.md`. The calculator gives no
+figures in production until a chartered accountant has checked them and the rule set in
+`src/server/services/tax-engine/jurisdictions` is marked `approved`.
+
 ## Data access
 
 User data is read and written through `withUser` (`src/lib/db.ts`). It runs each transaction as a restricted
