@@ -29,6 +29,13 @@
       "when": 1795424652906,
       "tag": "0003_clients",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795425000153,
+      "tag": "0004_exchange_rates",
+      "breakpoints": true
     }
   ]
 }
