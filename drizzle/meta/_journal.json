@@ -43,6 +43,13 @@
       "when": 1795425202005,
       "tag": "0005_income",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795425794597,
+      "tag": "0006_expenses",
+      "breakpoints": true
     }
   ]
 }

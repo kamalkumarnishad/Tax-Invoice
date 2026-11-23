@@ -5,3 +5,4 @@ export * from "./audit-logs";
 export * from "./clients";
 export * from "./exchange-rates";
 export * from "./income";
+export * from "./expenses";
