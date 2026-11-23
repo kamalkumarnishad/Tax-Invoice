@@ -64,6 +64,13 @@
       "when": 1795432673187,
       "tag": "0008_tax_calculations",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1795459584055,
+      "tag": "0009_invoices",
+      "breakpoints": true
     }
   ]
 }

@@ -3,6 +3,7 @@ import { check, date, foreignKey, index, numeric, pgTable, text, uuid, varchar }
 import { users } from "./auth";
 import { clients } from "./clients";
 import { money, timestamps } from "./columns";
+import { invoices } from "./invoices";
 import { currencies } from "./reference";
 
 export const incomeRecords = pgTable(
@@ -13,6 +14,10 @@ export const incomeRecords = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     clientId: uuid("client_id"),
+    /** Set together when this income is a payment for an invoice. */
+    invoiceId: uuid("invoice_id"),
+    /** What it settles in the invoice's currency. Above `amount` when the invoice charges GST, which is not income. */
+    invoiceAmount: money("invoice_amount"),
     description: text("description").notNull(),
     /** Invoiced amount, before any fee, in `currency`. */
     amount: money("amount").notNull(),
@@ -40,6 +45,12 @@ export const incomeRecords = pgTable(
   },
   (t) => [
     foreignKey({ columns: [t.clientId, t.userId], foreignColumns: [clients.id, clients.userId] }),
+    foreignKey({ columns: [t.invoiceId, t.userId], foreignColumns: [invoices.id, invoices.userId] }),
+    index("idx_income_invoice").on(t.invoiceId),
+    check(
+      "income_invoice_pair",
+      sql`(${t.invoiceId} is null) = (${t.invoiceAmount} is null) and (${t.invoiceAmount} is null or ${t.invoiceAmount} > 0)`,
+    ),
     index("idx_income_user_date").on(t.userId, t.paymentDate.desc()),
     index("idx_income_user_taxyear").on(t.userId, t.taxYearStart),
     index("idx_income_client").on(t.clientId),

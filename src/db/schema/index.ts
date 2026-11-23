@@ -4,6 +4,7 @@ export * from "./profiles";
 export * from "./audit-logs";
 export * from "./clients";
 export * from "./exchange-rates";
+export * from "./invoices";
 export * from "./income";
 export * from "./expenses";
 export * from "./tax-calculations";
