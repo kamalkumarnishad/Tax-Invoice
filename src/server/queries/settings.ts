@@ -1,7 +1,14 @@
 import "server-only";
-import { desc, eq } from "drizzle-orm";
-import { taxProfiles, userSettings } from "@/db/schema";
+import { asc, desc, eq } from "drizzle-orm";
+import { currencies, taxProfiles, userSettings } from "@/db/schema";
 import { withUser } from "@/lib/db";
+
+export function getCurrencies(userId: string) {
+  return withUser(userId, async (tx) => {
+    const rows = await tx.select().from(currencies).where(eq(currencies.isActive, true)).orderBy(asc(currencies.code));
+    return rows.map(({ code, name }) => ({ value: code, label: `${code} · ${name}` }));
+  });
+}
 
 export function getUserSettings(userId: string) {
   return withUser(userId, async (tx) => {

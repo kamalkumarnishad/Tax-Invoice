@@ -96,6 +96,14 @@ export function createAuth({ db, secret, baseURL, sendEmail }: CreateAuthOptions
           },
         },
       },
+      account: {
+        update: {
+          // With email and password as the only method, an account changes when its password does.
+          after: async (account) => {
+            await db.insert(schema.auditLogs).values({ userId: account.userId, action: "user.password_change" });
+          },
+        },
+      },
       session: {
         create: {
           before: async (session) => {

@@ -20,9 +20,16 @@ export const signupSchema = z.object({
 
 export const emailOnlySchema = z.object({ email });
 
+const passwordsMatch = (v: { password: string; confirm: string }) => v.password === v.confirm;
+const mismatch = { path: ["confirm"], message: "The passwords do not match" };
+
 export const resetPasswordSchema = z
   .object({ password: newPassword, confirm: z.string() })
-  .refine((v) => v.password === v.confirm, { path: ["confirm"], message: "The passwords do not match" });
+  .refine(passwordsMatch, mismatch);
+
+export const changePasswordSchema = z
+  .object({ current: z.string().min(1, "Enter your current password"), password: newPassword, confirm: z.string() })
+  .refine(passwordsMatch, mismatch);
 
 const APP_ORIGIN = "http://app.invalid";
 

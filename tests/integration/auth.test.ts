@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { accounts, auditLogs, rateLimits, sessions, users, userSettings, verifications } from "@/db/schema";
 import { type Auth, createAuth } from "@/lib/create-auth";
+import { listActiveSessions } from "@/server/queries/sessions";
 import { createTestDb, type TestDb } from "../helpers";
 
 const baseURL = "http://localhost:3000";
@@ -167,6 +168,64 @@ describe("password reset", () => {
     const response = await request("/request-password-reset", { body: { email: "nobody@example.test" } });
     expect(response.status).toBe(200);
     expect(outbox).toHaveLength(0);
+  });
+});
+
+describe("password change", () => {
+  const change = (cookie: string, currentPassword: string) =>
+    request("/change-password", {
+      cookie,
+      body: { currentPassword, newPassword: "another long password", revokeOtherSessions: true },
+    });
+
+  it("needs the current password", async () => {
+    const cookie = cookieFrom(await signUpVerified());
+    expect((await change(cookie, "not the password")).status).toBe(400);
+    expect((await signIn()).status).toBe(200);
+  });
+
+  it("ends other sessions and is logged", async () => {
+    const here = cookieFrom(await signUpVerified());
+    const elsewhere = cookieFrom(await signIn());
+    expect((await change(here, password)).status).toBe(200);
+    expect(await sessionOf(elsewhere)).toBeNull();
+    const logs = await db.select().from(auditLogs).where(eq(auditLogs.action, "user.password_change"));
+    expect(logs).toHaveLength(1);
+    expect(logs[0]!.userId).toBeTruthy();
+  });
+});
+
+describe("a session older than a day", () => {
+  const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+
+  it("can still list sessions, change the password and sign out other devices", async () => {
+    const cookie = cookieFrom(await signUpVerified());
+    await db.update(sessions).set({ createdAt: twoDaysAgo });
+    const [user] = await db.select().from(users);
+
+    const listed = await listActiveSessions(db, user!.id);
+    expect(listed).toHaveLength(1);
+    expect(listed[0]).not.toHaveProperty("token");
+
+    expect((await request("/revoke-other-sessions", { cookie, body: {} })).status).toBe(200);
+    const body = { currentPassword: password, newPassword: "another long password" };
+    expect((await request("/change-password", { cookie, body })).status).toBe(200);
+  });
+
+  it("is not listed once expired", async () => {
+    await signUpVerified();
+    await db.update(sessions).set({ expiresAt: twoDaysAgo });
+    const [user] = await db.select().from(users);
+    expect(await listActiveSessions(db, user!.id)).toEqual([]);
+  });
+});
+
+describe("profile update", () => {
+  it("does not let a user change their own role or active flag", async () => {
+    const cookie = cookieFrom(await signUpVerified());
+    await request("/update-user", { cookie, body: { name: "New", role: "super_admin" } });
+    await request("/update-user", { cookie, body: { name: "New", isActive: false } });
+    expect((await db.select().from(users))[0]).toMatchObject({ role: "user", isActive: true });
   });
 });
 
