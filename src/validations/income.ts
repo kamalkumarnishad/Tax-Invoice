@@ -17,6 +17,7 @@ export const paymentMethods = {
   wise: "Wise",
   payoneer: "Payoneer",
   card: "Card",
+  cash: "Cash",
   other: "Other",
 } as const;
 

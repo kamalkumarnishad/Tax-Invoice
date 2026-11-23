@@ -30,6 +30,8 @@ export const taxProfiles = pgTable(
     taxYearStart: date("tax_year_start").notNull(),
     taxYearEnd: date("tax_year_end").notNull(),
     taxpayerType: varchar("taxpayer_type", { length: 50 }).notNull().default("individual"),
+    /** On the last day of the tax year. The date of birth is not kept. */
+    ageGroup: varchar("age_group", { length: 20 }).notNull().default("under_60"),
     regime: varchar("regime", { length: 50 }),
     businessStructure: varchar("business_structure", { length: 50 }),
     /** AES-256-GCM ciphertext. The plain PAN is never stored. */

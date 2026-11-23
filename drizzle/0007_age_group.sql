@@ -1,0 +1,1 @@
+ALTER TABLE "tax_profiles" ADD COLUMN "age_group" varchar(20) DEFAULT 'under_60' NOT NULL;

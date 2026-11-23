@@ -1,9 +1,9 @@
 import { z } from "zod";
+import { ageGroups } from "@/server/services/tax-engine/types";
 import { keysOf } from "./common";
 
 export const taxYears = [{ value: "2026-04-01", end: "2027-03-31", label: "FY 2026-27" }] as const;
 
-export const taxpayerTypes = { individual: "Individual", huf: "Hindu Undivided Family" } as const;
 export const regimes = { new_regime: "New regime", old_regime: "Old regime" } as const;
 export const businessStructures = {
   freelancer: "Freelancer or professional",
@@ -18,7 +18,7 @@ const blankOrDate = z.union([z.literal(""), z.iso.date("Enter a valid date")]);
 export const taxProfileSchema = z
   .object({
     taxYearStart: z.enum(taxYears.map((y) => y.value) as [(typeof taxYears)[number]["value"]]),
-    taxpayerType: z.enum(keysOf(taxpayerTypes)),
+    ageGroup: z.enum(keysOf(ageGroups)),
     regime: z.enum(keysOf(regimes)),
     businessStructure: z.enum(keysOf(businessStructures)),
     presumptiveTaxation: z.boolean(),

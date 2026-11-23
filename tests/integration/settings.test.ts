@@ -9,7 +9,7 @@ import { createTestDb, type TestDb } from "../helpers";
 
 const base: TaxProfileInput = {
   taxYearStart: "2026-04-01",
-  taxpayerType: "individual",
+  ageGroup: "under_60",
   regime: "new_regime",
   businessStructure: "freelancer",
   presumptiveTaxation: false,
@@ -117,6 +117,7 @@ describe("tax profile", () => {
     [{ hasLut: true }, "lutArn"],
     [{ hasLut: true, lutArn: "X", lutValidFrom: "2027-03-31", lutValidTo: "2026-04-01" }, "lutValidTo"],
     [{ regime: "flat_regime" }, "regime"],
+    [{ ageGroup: "ageless" }, "ageGroup"],
     [{ taxYearStart: "1999-04-01" }, "taxYearStart"],
   ])("rejects %j", (input, field) => {
     const result = taxProfileSchema.safeParse({ ...base, ...input });

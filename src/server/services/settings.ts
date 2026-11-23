@@ -24,7 +24,9 @@ export async function saveTaxProfile(tx: Tx, userId: string, input: TaxProfileIn
 
   const values = {
     taxYearEnd: year.end,
-    taxpayerType: input.taxpayerType,
+    // Only individuals are supported: the rules for HUFs differ.
+    taxpayerType: "individual",
+    ageGroup: input.ageGroup,
     regime: input.regime,
     businessStructure: input.businessStructure,
     presumptiveTaxation: input.presumptiveTaxation,

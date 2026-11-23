@@ -34,7 +34,7 @@ export function getTaxProfile(userId: string) {
       .select({
         id: taxProfiles.id,
         taxYearStart: taxProfiles.taxYearStart,
-        taxpayerType: taxProfiles.taxpayerType,
+        ageGroup: taxProfiles.ageGroup,
         regime: taxProfiles.regime,
         businessStructure: taxProfiles.businessStructure,
         panLast4: taxProfiles.panLast4,

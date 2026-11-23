@@ -32,7 +32,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
 
   const blank = {
     taxYearStart: "2026-04-01",
-    taxpayerType: "individual",
+    ageGroup: "under_60",
     regime: "new_regime",
     businessStructure: "freelancer",
     presumptiveTaxation: false,
@@ -48,7 +48,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     ...blank,
     ...(profile && {
       taxYearStart: profile.taxYearStart,
-      taxpayerType: profile.taxpayerType,
+      ageGroup: profile.ageGroup,
       regime: profile.regime ?? blank.regime,
       businessStructure: profile.businessStructure ?? blank.businessStructure,
       presumptiveTaxation: profile.presumptiveTaxation,

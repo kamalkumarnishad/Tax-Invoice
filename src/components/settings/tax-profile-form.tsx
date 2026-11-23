@@ -11,10 +11,10 @@ import { SelectField } from "@/components/forms/select-field";
 import { TextField } from "@/components/forms/text-field";
 import { Button } from "@/components/ui/button";
 import { saveTaxProfileAction } from "@/server/actions/settings";
+import { ageGroups } from "@/server/services/tax-engine/types";
 import {
   businessStructures,
   regimes,
-  taxpayerTypes,
   type TaxProfileInput,
   taxProfileSchema,
   taxYears,
@@ -46,10 +46,10 @@ export function TaxProfileForm({ values, panLast4 }: TaxProfileFormProps) {
         <TextField id="country" label="Country" value="India" readOnly disabled />
         <SelectField id="taxYearStart" label="Tax year" options={taxYears} {...field.text("taxYearStart")} />
         <SelectField
-          id="taxpayerType"
-          label="Taxpayer type"
-          options={toOptions(taxpayerTypes)}
-          {...field.text("taxpayerType")}
+          id="ageGroup"
+          label="Your age on 31 March 2027"
+          options={toOptions(ageGroups)}
+          {...field.text("ageGroup")}
         />
         <SelectField
           id="businessStructure"
