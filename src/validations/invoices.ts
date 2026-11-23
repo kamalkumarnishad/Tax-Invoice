@@ -55,6 +55,18 @@ export const invoiceSchema = z
 export type InvoiceFormValues = z.input<typeof invoiceSchema>;
 export type InvoiceInput = z.output<typeof invoiceSchema>;
 
+export const invoiceFilters = {
+  draft: "Drafts",
+  unpaid: "Unpaid",
+  overdue: "Overdue",
+  paid: "Paid",
+  cancelled: "Cancelled",
+} as const;
+export type InvoiceFilter = keyof typeof invoiceFilters | "";
+
+export const parseInvoiceFilter = (raw: unknown): InvoiceFilter =>
+  z.enum(["", ...keysOf(invoiceFilters)]).catch("").parse(raw ?? "");
+
 export const businessSchema = z.object({
   businessName: z.string().trim().min(1, "Enter your name or business name").max(255),
   address: z.string().trim().min(1, "Enter your address").max(1000, "Use at most 1000 characters"),

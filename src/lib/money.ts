@@ -45,3 +45,7 @@ export function percentOf(part: string, whole: string): string {
 export function isZero(amount: string): boolean {
   return new Money(amount).isZero();
 }
+
+export function half(amount: string): string {
+  return new Money(amount).dividedBy(2).toFixed();
+}

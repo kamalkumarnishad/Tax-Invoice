@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/layouts/page-header";
+import { BusinessForm } from "@/components/settings/business-form";
 import { PreferencesForm } from "@/components/settings/preferences-form";
 import { ProfileForm } from "@/components/settings/profile-form";
 import { ChangePasswordForm, SessionList } from "@/components/settings/security-panel";
@@ -10,23 +11,25 @@ import { getSession, requireUser } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { formatDate } from "@/lib/format";
 import { describeDevice, timezoneOptions } from "@/lib/options";
+import { getBusiness } from "@/server/queries/invoices";
 import { listActiveSessions } from "@/server/queries/sessions";
 import { getCurrencies, getTaxProfile, getUserSettings } from "@/server/queries/settings";
 import { taxProfileSchema } from "@/validations/settings";
 
 export const metadata: Metadata = { title: "Settings" };
 
-const tabs = ["profile", "tax", "security"];
+const tabs = ["profile", "business", "tax", "security"];
 
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const user = await requireUser();
-  const [{ tab }, current, sessions, settings, profile, currencies] = await Promise.all([
+  const [{ tab }, current, sessions, settings, profile, currencies, business] = await Promise.all([
     searchParams,
     getSession(),
     getDb().then((db) => listActiveSessions(db, user.id)),
     getUserSettings(user.id),
     getTaxProfile(user.id),
     getCurrencies(user.id),
+    getBusiness(user.id),
   ]);
   const timezone = settings?.timezone ?? "Asia/Kolkata";
 
@@ -66,6 +69,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       <Tabs key={tab} defaultValue={tab && tabs.includes(tab) ? tab : "profile"} className="gap-6">
         <TabsList>
           <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="business">Business</TabsTrigger>
           <TabsTrigger value="tax">Tax profile</TabsTrigger>
           <TabsTrigger value="security">Security</TabsTrigger>
         </TabsList>
@@ -81,6 +85,19 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 defaultCurrency: settings?.defaultCurrency ?? "INR",
                 timezone,
                 notificationsEnabled: settings?.notificationsEnabled ?? true,
+              }}
+            />
+          </SettingsCard>
+        </TabsContent>
+        <TabsContent value="business">
+          <SettingsCard title="Business details" description="Shown on your invoices. Issued invoices keep the details they were issued with.">
+            <BusinessForm
+              values={{
+                businessName: business?.businessName ?? user.name,
+                address: business?.address ?? "",
+                email: business?.email ?? "",
+                phone: business?.phone ?? "",
+                paymentInstructions: business?.paymentInstructions ?? "",
               }}
             />
           </SettingsCard>

@@ -60,3 +60,9 @@ export function formatMonth(month: string, style: keyof typeof monthStyles, loca
     new Date(`${month}-01T00:00:00Z`),
   );
 }
+
+export function addDays(date: string, days: number): string {
+  const value = new Date(`${date}T00:00:00Z`);
+  value.setUTCDate(value.getUTCDate() + days);
+  return value.toISOString().slice(0, 10);
+}

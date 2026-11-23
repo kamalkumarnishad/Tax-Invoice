@@ -7,7 +7,7 @@ import { withUser } from "@/lib/db";
 export function getCurrencies(userId: string) {
   return withUser(userId, async (tx) => {
     const rows = await tx.select().from(currencies).where(eq(currencies.isActive, true)).orderBy(asc(currencies.code));
-    return rows.map(({ code, name }) => ({ value: code, label: `${code} · ${name}` }));
+    return rows.map(({ code, name, decimalPlaces }) => ({ value: code, label: `${code} · ${name}`, decimals: decimalPlaces }));
   });
 }
 

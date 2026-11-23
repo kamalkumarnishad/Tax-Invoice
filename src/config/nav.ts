@@ -31,7 +31,7 @@ export const appNav: NavGroup[] = [
       { title: "Income", icon: TrendingUp, href: "/app/income" },
       { title: "Expenses", icon: Wallet, href: "/app/expenses" },
       { title: "Clients", icon: Users, href: "/app/clients" },
-      { title: "Invoices", icon: FileText },
+      { title: "Invoices", icon: FileText, href: "/app/invoices" },
       { title: "Currency analyzer", icon: Coins },
     ],
   },
