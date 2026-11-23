@@ -25,7 +25,7 @@ export default async function ClientsPage({ searchParams }: Props) {
   const show = archived ? "archived" : "";
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <PageHeader
         title="Clients"
         action={

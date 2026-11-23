@@ -12,7 +12,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <SidebarProvider defaultOpen={sidebarOpen}>
       <AppSidebar user={{ name: user.name, email: user.email }} />
-      <SidebarInset>
+      <SidebarInset className="min-w-0">
         <header className="sticky top-0 z-10 flex h-14 items-center justify-between border-b bg-background px-4">
           <SidebarTrigger />
           <ThemeToggle />

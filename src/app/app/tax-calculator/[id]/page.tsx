@@ -23,7 +23,7 @@ export default async function CalculationPage({ params }: { params: Promise<{ id
   const savedOn = formatDate(calculation.createdAt, "en-IN", settings?.timezone);
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <PageHeader
         title={calculation.rules.label}
         description={`Saved ${savedOn}, rules ${calculation.ruleId} version ${calculation.ruleVersion}`}

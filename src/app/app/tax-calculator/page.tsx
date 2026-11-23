@@ -25,7 +25,7 @@ export default async function TaxCalculatorPage() {
 
   if (!calculatorAvailable()) {
     return (
-      <div className="grid gap-6">
+      <div className="grid grid-cols-1 gap-6">
         <PageHeader title="Tax calculator" description={currentRules.label} />
         <EmptyState
           icon={Calculator}
@@ -46,7 +46,7 @@ export default async function TaxCalculatorPage() {
   const reviewed = currentRules.status === "approved";
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <PageHeader title="Tax calculator" description={`${currentRules.label}. Both regimes are compared.`} />
       {!reviewed && (
         <Alert>
@@ -95,7 +95,7 @@ export default async function TaxCalculatorPage() {
         }}
       />
       {saved.length > 0 && (
-        <section className="grid gap-3">
+        <section className="grid grid-cols-1 gap-3">
           <h2 className="text-lg md:text-xl">Saved calculations</h2>
           <ul className="divide-y rounded-lg border">
             {saved.map((row) => (

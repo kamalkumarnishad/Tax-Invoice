@@ -2,6 +2,7 @@ import {
   Bot,
   CalendarClock,
   Calculator,
+  ChartColumn,
   Coins,
   FileSearch,
   FileText,
@@ -44,6 +45,12 @@ export const features: Feature[] = [
     title: "Expenses",
     description: "Track what you spend by category and mark what is for your business. Receipt upload is planned.",
     icon: Wallet,
+    available: true,
+  },
+  {
+    title: "Reports",
+    description: "Profit, TDS and spending for any dates, by client and category, with CSV export.",
+    icon: ChartColumn,
     available: true,
   },
   {

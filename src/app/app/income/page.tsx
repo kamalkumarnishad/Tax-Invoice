@@ -35,7 +35,7 @@ export default async function IncomePage({ searchParams }: Props) {
   const filtered = Boolean(q || filters.client || filters.status || filters.year);
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <PageHeader
         title="Income"
         action={

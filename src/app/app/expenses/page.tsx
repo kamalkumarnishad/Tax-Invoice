@@ -32,7 +32,7 @@ export default async function ExpensesPage({ searchParams }: Props) {
   const filtered = Boolean(q || filters.category || filters.year);
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <PageHeader
         title="Expenses"
         action={

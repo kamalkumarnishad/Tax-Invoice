@@ -33,7 +33,7 @@ export default async function IncomeRecordPage({ params }: { params: Promise<{ i
   ];
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <PageHeader
         title={record.description}
         description={taxYearLabel(record.taxYearStart)}

@@ -25,7 +25,7 @@ type AmountName = Exclude<
 
 function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
-    <fieldset className="grid gap-4">
+    <fieldset className="grid grid-cols-1 gap-4">
       <legend className="mb-1 font-medium">{title}</legend>
       {hint && <p className="text-sm text-muted-foreground">{hint}</p>}
       <div className="grid items-start gap-4 sm:grid-cols-2">{children}</div>
@@ -80,7 +80,7 @@ export function TaxForm({ values, reviewed }: { values: TaxFormValues; reviewed:
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <Card>
         <CardContent>
           {/* Any edit hides the old result, so figures on screen always match the form. */}
@@ -160,7 +160,7 @@ export function TaxForm({ values, reviewed }: { values: TaxFormValues; reviewed:
           </form>
         </CardContent>
       </Card>
-      <div aria-live="polite" className="grid gap-4">
+      <div aria-live="polite" className="grid grid-cols-1 gap-4">
         {calculated && (
           <>
             <TaxResults results={calculated.results} reviewed={reviewed} />

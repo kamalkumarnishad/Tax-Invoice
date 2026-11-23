@@ -107,8 +107,8 @@ type TaxResultsProps = { results: Record<Regime, TaxResult>; reviewed: boolean }
 export function TaxResults({ results, reviewed }: TaxResultsProps) {
   const difference = subtract(results.new_regime.totalTax, results.old_regime.totalTax);
   return (
-    <section aria-label="Estimate" className="grid gap-4">
-      <div className="grid gap-4 lg:grid-cols-2">
+    <section aria-label="Estimate" className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <RegimeCard result={results.new_regime} lowest={isNegative(difference)} />
         <RegimeCard result={results.old_regime} lowest={!isNegative(difference) && !isZero(difference)} />
       </div>

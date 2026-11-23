@@ -91,7 +91,7 @@ export function SessionList({ sessions }: { sessions: SessionRow[] }) {
   }
 
   return (
-    <div className="grid gap-4">
+    <div className="grid grid-cols-1 gap-4">
       <ul className="divide-y">
         {sessions.map((session) => (
           <li key={session.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">

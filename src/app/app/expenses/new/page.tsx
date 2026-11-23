@@ -12,7 +12,7 @@ export default async function NewExpensePage() {
   const [defaults, currencies] = await Promise.all([getUserDefaults(user.id), getCurrencies(user.id)]);
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <PageHeader title="Add expense" />
       <Card>
         <CardContent>

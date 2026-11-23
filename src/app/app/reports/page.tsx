@@ -1,9 +1,11 @@
+import { Download } from "lucide-react";
 import type { Metadata } from "next";
 import { type ChartMonth, IncomeExpenseChart } from "@/components/charts/income-expense-chart";
 import { PageHeader } from "@/components/layouts/page-header";
 import { BreakdownTable } from "@/components/reports/breakdown-table";
 import { RangePicker } from "@/components/reports/range-picker";
 import { CurrencyDisplay } from "@/components/shared/currency-display";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/auth";
 import { formatCalendarDate, formatMonth } from "@/lib/dates";
@@ -51,10 +53,22 @@ export default async function ReportsPage({ searchParams }: Props) {
   }));
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <PageHeader
         title="Reports"
         description={`${formatCalendarDate(range.from)} to ${formatCalendarDate(range.to)}, in ${currency}`}
+        action={
+          <div className="flex flex-wrap gap-2">
+            {(["income", "expenses"] as const).map((kind) => (
+              <Button key={kind} asChild variant="outline">
+                {/* Not a Link: prefetching would run and log an export nobody asked for. */}
+                <a href={`/app/reports/export?kind=${kind}&from=${range.from}&to=${range.to}`} download>
+                  <Download /> {kind === "income" ? "Income CSV" : "Expenses CSV"}
+                </a>
+              </Button>
+            ))}
+          </div>
+        }
       />
       <RangePicker range={range} today={today} error={error} />
       {report.otherCurrencyRecords > 0 && (
@@ -62,7 +76,7 @@ export default async function ReportsPage({ searchParams }: Props) {
           Records made in another default currency are not included: {report.otherCurrencyRecords}.
         </p>
       )}
-      <div className="grid items-start gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>
@@ -112,7 +126,7 @@ export default async function ReportsPage({ searchParams }: Props) {
           </CardContent>
         </Card>
       )}
-      <div className="grid items-start gap-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-2">
         <BreakdownTable
           title="Income by client"
           nameHeading="Client"

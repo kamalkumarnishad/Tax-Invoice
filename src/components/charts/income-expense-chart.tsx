@@ -43,7 +43,7 @@ const compact = new Intl.NumberFormat("en-IN", { notation: "compact", maximumFra
 
 export function IncomeExpenseChart({ months }: { months: ChartMonth[] }) {
   return (
-    <div className="grid gap-4">
+    <div className="grid grid-cols-1 gap-4">
       <ul className="flex gap-4 text-sm text-muted-foreground">
         {series.map((s) => (
           <li key={s.key} className="flex items-center gap-2">

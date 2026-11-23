@@ -61,7 +61,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   });
 
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-1 gap-6">
       <PageHeader title="Settings" />
       <Tabs key={tab} defaultValue={tab && tabs.includes(tab) ? tab : "profile"} className="gap-6">
         <TabsList>
@@ -69,7 +69,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <TabsTrigger value="tax">Tax profile</TabsTrigger>
           <TabsTrigger value="security">Security</TabsTrigger>
         </TabsList>
-        <TabsContent value="profile" className="grid gap-6">
+        <TabsContent value="profile" className="grid grid-cols-1 gap-6">
           <SettingsCard title="Profile">
             <ProfileForm name={user.name} email={user.email} />
           </SettingsCard>
@@ -90,7 +90,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <TaxProfileForm values={taxValues} panLast4={profile?.panLast4 ?? null} />
           </SettingsCard>
         </TabsContent>
-        <TabsContent value="security" className="grid gap-6">
+        <TabsContent value="security" className="grid grid-cols-1 gap-6">
           <SettingsCard title="Password" description="Changing it signs out your other devices.">
             <ChangePasswordForm />
           </SettingsCard>
