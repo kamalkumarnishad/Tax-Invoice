@@ -36,15 +36,15 @@ export const features: Feature[] = [
   },
   {
     title: "Multi-currency income",
-    description: "Record foreign payments with the rate, gateway fees and tax deducted at source.",
+    description: "Record foreign payments with the exchange rate, gateway fees and tax deducted at source.",
     icon: Coins,
-    available: false,
+    available: true,
   },
   {
     title: "Expenses",
-    description: "Categories and receipts, ready when you work out your deductions.",
+    description: "Track what you spend by category and mark what is for your business. Receipt upload is planned.",
     icon: Wallet,
-    available: false,
+    available: true,
   },
   {
     title: "Invoices",

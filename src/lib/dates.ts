@@ -23,3 +23,17 @@ export function taxYearEnd(start: string): string {
 export function formatCalendarDate(date: string, locale = "en-IN"): string {
   return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`));
 }
+
+/** "2026-04" to "2027-03" for the year starting 2026-04-01. */
+export function monthsOfTaxYear(start: string): string[] {
+  const year = Number(start.slice(0, 4));
+  return Array.from({ length: 12 }, (_, index) => {
+    const month = ((index + 3) % 12) + 1;
+    return `${month < 4 ? year + 1 : year}-${String(month).padStart(2, "0")}`;
+  });
+}
+
+export function formatMonth(month: string, style: "short" | "long", locale = "en-IN"): string {
+  const options = style === "short" ? ({ month: "short" } as const) : ({ month: "long", year: "numeric" } as const);
+  return new Intl.DateTimeFormat(locale, { ...options, timeZone: "UTC" }).format(new Date(`${month}-01T00:00:00Z`));
+}
