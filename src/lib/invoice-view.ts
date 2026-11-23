@@ -63,7 +63,7 @@ export function invoiceView({ invoice, items, paid, seller, buyer, state }: Invo
         ? []
         : [
             { label: "Discount", value: `−${show(invoice.discount)}` },
-            { label: "Taxable value", value: show(taxable) },
+            ...(mode === "none" ? [] : [{ label: "Taxable value", value: show(taxable) }]),
           ]),
       ...taxes.map((tax) => ({ label: tax.label, value: show(tax.amount) })),
     ],

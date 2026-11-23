@@ -1,3 +1,4 @@
+import { Download } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -38,6 +39,12 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
         action={
           <div className="flex flex-wrap items-center gap-2">
             <StateBadge state={state} />
+            <Button asChild variant="outline">
+              {/* Not a Link: prefetching would make a PDF nobody asked for. */}
+              <a href={`/app/invoices/${invoice.id}/pdf`} download>
+                <Download /> PDF
+              </a>
+            </Button>
             {invoice.status === "draft" && (
               <>
                 <Button asChild variant="outline">

@@ -55,9 +55,9 @@ export const features: Feature[] = [
   },
   {
     title: "Invoices",
-    description: "Multi-currency invoices as PDF, with GST and LUT details for exports.",
+    description: "Invoices in nine currencies as PDF, with GST or LUT details, and payments that feed your income.",
     icon: FileText,
-    available: false,
+    available: true,
   },
   {
     title: "Compliance calendar",

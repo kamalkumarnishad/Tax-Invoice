@@ -27,8 +27,8 @@ export default function HomePage() {
         <div className="mx-auto grid max-w-6xl gap-6 px-4 py-20 md:px-6 md:py-28">
           <h1 className="max-w-3xl text-4xl text-balance md:text-5xl">{siteConfig.tagline}</h1>
           <p className="max-w-2xl text-lg text-muted-foreground">
-            For freelancers, remote workers and agencies in India: one place for your clients, income and
-            expenses today, with invoices and tax estimates being added step by step.
+            For freelancers, remote workers and agencies in India: one place for your clients, invoices,
+            income and expenses today, with tax estimates and more being added step by step.
           </p>
           <div className="flex flex-wrap gap-3">
             <Button asChild size="lg">

@@ -16,6 +16,7 @@
     "@electric-sql/pglite": "^0.5.17",
     "@hookform/resolvers": "^7.0.8",
     "@neondatabase/serverless": "^1.2.1",
+    "@react-pdf/renderer": "^4.9.0",
     "@t3-oss/env-nextjs": "^0.13.11",
     "better-auth": "^1.7.27",
     "class-variance-authority": "^0.7.1",
