@@ -30,7 +30,7 @@ export const appNav: NavGroup[] = [
     items: [
       { title: "Income", icon: TrendingUp },
       { title: "Expenses", icon: Wallet },
-      { title: "Clients", icon: Users },
+      { title: "Clients", icon: Users, href: "/app/clients" },
       { title: "Invoices", icon: FileText },
       { title: "Currency analyzer", icon: Coins },
     ],
