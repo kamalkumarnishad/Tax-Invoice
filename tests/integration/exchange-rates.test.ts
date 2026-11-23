@@ -10,7 +10,8 @@ let alice: string;
 
 const request = { from: "USD", to: "INR", date: "2026-11-20", today: "2026-11-23" };
 const answer = (body: unknown, status = 200) => vi.fn(async () => Response.json(body, { status }));
-const good = () => answer([{ date: "2026-11-20", base: "USD", quote: "INR", rate: 92.68 }]);
+const ecb = (body: object = {}) => ({ base: "USD", date: "2026-11-20", rates: { INR: 92.68 }, ...body });
+const good = () => answer(ecb());
 
 beforeAll(async () => {
   ({ db, close } = await createTestDb());
@@ -23,8 +24,8 @@ beforeEach(() => db.delete(exchangeRates));
 describe("getRate", () => {
   it("fetches once and then answers from storage", async () => {
     const fetchFn = good();
-    expect(await getRate(db, request, fetchFn)).toEqual({ rate: "92.68000000", source: "frankfurter" });
-    expect(await getRate(db, request, fetchFn)).toEqual({ rate: "92.68000000", source: "frankfurter" });
+    expect(await getRate(db, request, fetchFn)).toEqual({ rate: "92.68000000", source: "European Central Bank" });
+    expect(await getRate(db, request, fetchFn)).toEqual({ rate: "92.68000000", source: "European Central Bank" });
     expect(fetchFn).toHaveBeenCalledTimes(1);
   });
 
@@ -32,7 +33,7 @@ describe("getRate", () => {
     const fetchFn = good();
     await getRate(db, request, fetchFn);
     const [url, init] = fetchFn.mock.calls[0] as unknown as [string, RequestInit];
-    expect(url).toBe("https://api.frankfurter.dev/v2/rates?date=2026-11-20&base=USD&quotes=INR");
+    expect(url).toBe("https://api.frankfurter.dev/v1/2026-11-20?base=USD&symbols=INR");
     expect(init.headers).toBeUndefined();
   });
 
@@ -53,13 +54,25 @@ describe("getRate", () => {
     expect(fetchFn).not.toHaveBeenCalled();
   });
 
+  it("falls back to the average without storing it", async () => {
+    const fetchFn = vi
+      .fn()
+      .mockResolvedValueOnce(Response.json({ message: "not found" }, { status: 404 }))
+      .mockResolvedValueOnce(Response.json([{ base: "AED", quote: "INR", rate: 25.301 }]));
+    const rate = await getRate(db, { ...request, from: "AED" }, fetchFn);
+    expect(rate).toEqual({ rate: "25.30100000", source: "Central bank average" });
+    expect(await db.select().from(exchangeRates)).toEqual([]);
+  });
+
   it.each([
     ["an error status", answer({}, 500)],
     ["an empty list", answer([])],
-    ["another pair", answer([{ base: "EUR", quote: "INR", rate: 1 }])],
-    ["a zero rate", answer([{ base: "USD", quote: "INR", rate: 0 }])],
-    ["a negative rate", answer([{ base: "USD", quote: "INR", rate: -5 }])],
-    ["a rate that rounds to zero", answer([{ base: "USD", quote: "INR", rate: 1e-12 }])],
+    ["another base", answer(ecb({ base: "EUR" }))],
+    ["another target", answer(ecb({ rates: { EUR: 1 } }))],
+    ["a zero rate", answer(ecb({ rates: { INR: 0 } }))],
+    ["a negative rate", answer(ecb({ rates: { INR: -5 } }))],
+    ["a rate that rounds to zero", answer(ecb({ rates: { INR: 1e-12 } }))],
+    ["an average for another pair", answer([{ base: "EUR", quote: "INR", rate: 1 }])],
     ["text instead of JSON", vi.fn(async () => new Response("<html>"))],
     ["a network failure", vi.fn(async () => Promise.reject(new Error("offline")))],
   ])("gives up on %s and stores nothing", async (_, fetchFn) => {

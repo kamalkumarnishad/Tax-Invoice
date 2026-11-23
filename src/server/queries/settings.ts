@@ -1,6 +1,7 @@
 import "server-only";
 import { asc, desc, eq } from "drizzle-orm";
 import { currencies, taxProfiles, userSettings } from "@/db/schema";
+import { todayIn } from "@/lib/dates";
 import { withUser } from "@/lib/db";
 
 export function getCurrencies(userId: string) {
@@ -15,6 +16,15 @@ export function getUserSettings(userId: string) {
     const [row] = await tx.select().from(userSettings).where(eq(userSettings.userId, userId));
     return row ?? null;
   });
+}
+
+/** What new records start from: the user's currency and what day it is for them. */
+export async function getUserDefaults(userId: string) {
+  const settings = await getUserSettings(userId);
+  return {
+    currency: settings?.defaultCurrency ?? "INR",
+    today: todayIn(settings?.timezone ?? "Asia/Kolkata"),
+  };
 }
 
 /** The primary profile, or the newest one. The encrypted PAN stays on the server. */

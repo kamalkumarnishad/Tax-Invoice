@@ -9,6 +9,15 @@ export const optionalText = (max: number) => z.string().trim().max(max, `Use at 
 
 export const currencyCode = z.string().regex(/^[A-Z]{3}$/, "Choose a currency");
 
+/** A tax year's start date in an address, or "" for all years. */
+export const taxYearParam = z
+  .string()
+  .regex(/^20\d{2}-04-01$/)
+  .catch("");
+
+export const keysOf = <T extends Record<string, string>>(options: T) =>
+  Object.keys(options) as [keyof T & string, ...(keyof T & string)[]];
+
 /** "" becomes null, for writing optional columns. */
 export const orNull = <T extends string>(value: T) => (value === "" ? null : value);
 

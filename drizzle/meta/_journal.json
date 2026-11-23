@@ -36,6 +36,13 @@
       "when": 1795425000153,
       "tag": "0004_exchange_rates",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795425202005,
+      "tag": "0005_income",
+      "breakpoints": true
     }
   ]
 }
