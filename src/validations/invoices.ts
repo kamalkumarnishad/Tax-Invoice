@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { chargesGst, taxModes } from "@/lib/invoice";
 import { currencyCode, keysOf, optionalText, uuid } from "./common";
-import { optionalAmount, recordDate } from "./money";
+import { incomeCategories, paymentMethods } from "./income";
+import { exchangeRate, optionalAmount, positiveAmount, recordDate } from "./money";
 
 export const MAX_ITEMS = 50;
 
@@ -66,6 +67,20 @@ export type InvoiceFilter = keyof typeof invoiceFilters | "";
 
 export const parseInvoiceFilter = (raw: unknown): InvoiceFilter =>
   z.enum(["", ...keysOf(invoiceFilters)]).catch("").parse(raw ?? "");
+
+export const paymentSchema = z.object({
+  amount: positiveAmount,
+  paymentDate: recordDate,
+  paymentMethod: z.enum(keysOf(paymentMethods)),
+  exchangeRate,
+  gatewayFee: optionalAmount,
+  bankCharges: optionalAmount,
+  tdsDeducted: optionalAmount,
+  category: z.enum(keysOf(incomeCategories)),
+});
+
+export type PaymentFormValues = z.input<typeof paymentSchema>;
+export type PaymentInput = z.output<typeof paymentSchema>;
 
 export const businessSchema = z.object({
   businessName: z.string().trim().min(1, "Enter your name or business name").max(255),

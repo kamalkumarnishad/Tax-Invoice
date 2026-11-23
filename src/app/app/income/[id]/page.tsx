@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { IncomeForm } from "@/components/income/income-form";
 import { PageHeader } from "@/components/layouts/page-header";
@@ -46,6 +47,15 @@ export default async function IncomeRecordPage({ params }: { params: Promise<{ i
           />
         }
       />
+      {record.invoiceId && (
+        <p className="text-sm text-muted-foreground">
+          A payment for{" "}
+          <Link href={`/app/invoices/${record.invoiceId}`} className="text-foreground underline underline-offset-4">
+            an invoice
+          </Link>
+          . Deleting it makes that amount due again.
+        </p>
+      )}
       <dl className="grid gap-4 sm:grid-cols-3">
         {figures.map(({ label, value }) => (
           <div key={label} className="rounded-lg border p-4">

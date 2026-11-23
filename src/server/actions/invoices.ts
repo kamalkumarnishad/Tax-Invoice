@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { withUser } from "@/lib/db";
+import { getUserDefaults } from "@/server/queries/settings";
 import {
   cancelInvoice,
   createInvoice,
@@ -12,9 +13,10 @@ import {
   saveBusiness,
   updateInvoice,
 } from "@/server/services/invoices";
+import { recordPayment } from "@/server/services/payments";
 import { type ActionResult, INVALID, type Tx } from "@/server/services/shared";
 import { uuid } from "@/validations/common";
-import { businessSchema, invoiceSchema } from "@/validations/invoices";
+import { businessSchema, invoiceSchema, paymentSchema } from "@/validations/invoices";
 
 export async function createInvoiceAction(input: unknown): Promise<ActionResult<{ id: string }>> {
   const user = await requireUser();
@@ -53,6 +55,17 @@ export async function cancelInvoiceAction(id: unknown): Promise<ActionResult> {
 
 export async function deleteInvoiceAction(id: unknown): Promise<ActionResult> {
   return onInvoice(id, deleteInvoice);
+}
+
+export async function recordPaymentAction(id: unknown, input: unknown): Promise<ActionResult> {
+  const user = await requireUser();
+  const parsed = z.tuple([uuid, paymentSchema]).safeParse([id, input]);
+  if (!parsed.success) return INVALID;
+  const { currency, today } = await getUserDefaults(user.id);
+  const context = { userId: user.id, baseCurrency: currency, today };
+  const result = await withUser(user.id, (tx) => recordPayment(tx, context, ...parsed.data));
+  revalidatePath("/app", "layout");
+  return result;
 }
 
 export async function saveBusinessAction(input: unknown): Promise<ActionResult> {

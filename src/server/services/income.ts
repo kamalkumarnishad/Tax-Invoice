@@ -2,7 +2,7 @@ import "server-only";
 import { and, eq } from "drizzle-orm";
 import { auditLogs, incomeRecords } from "@/db/schema";
 import { taxYearStartFor } from "@/lib/dates";
-import { isNegative, subtract } from "@/lib/money";
+import { compare, isNegative, subtract } from "@/lib/money";
 import { orNull } from "@/validations/common";
 import type { IncomeInput } from "@/validations/income";
 import { convertToBase } from "./currency/convert";
@@ -66,11 +66,12 @@ export async function createIncome(
   tx: Tx,
   { userId, baseCurrency, today }: Context,
   input: IncomeInput,
+  invoice: { invoiceId: string; invoiceAmount: string } | null = null,
 ): Promise<ActionResult<{ id: string }>> {
   const columns = await toColumns(tx, input, baseCurrency, today);
   if (!columns.ok) return columns;
   const written = await withClientCheck(tx, (inner) =>
-    inner.insert(incomeRecords).values({ userId, ...columns.data }).returning({ id: incomeRecords.id }),
+    inner.insert(incomeRecords).values({ userId, ...columns.data, ...invoice }).returning({ id: incomeRecords.id }),
   );
   if (!written.ok) return written;
   const id = written.data[0]!.id;
@@ -86,10 +87,21 @@ export async function updateIncome(
   input: IncomeInput,
 ): Promise<ActionResult> {
   const [existing] = await tx
-    .select({ baseCurrency: incomeRecords.baseCurrency })
+    .select()
     .from(incomeRecords)
     .where(owned(userId, id));
   if (!existing) return GONE;
+  // The invoice's balance is worked out from these, so they cannot drift from what was settled.
+  const unchanged =
+    compare(existing.amount, input.amount) === 0 &&
+    existing.currency === input.currency &&
+    existing.clientId === orNull(input.clientId) &&
+    existing.status === input.status;
+  if (existing.invoiceId && !unchanged) {
+    return fail(
+      "This is a payment for an invoice, so its amount, currency, client and status cannot change. Delete it and record the payment again.",
+    );
+  }
 
   const columns = await toColumns(tx, input, existing.baseCurrency, today);
   if (!columns.ok) return columns;

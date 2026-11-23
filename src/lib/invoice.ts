@@ -110,3 +110,24 @@ export function nextInvoiceNumber(taxYearStart: string, existing: string[]): str
     .map((number) => Number(number.slice(prefix.length)));
   return `${prefix}${String(Math.max(0, ...used) + 1).padStart(4, "0")}`;
 }
+
+type PaymentInput = {
+  settled: string;
+  alreadySettled: string;
+  alreadyIncome: string;
+  total: string;
+  taxable: string;
+  decimals: number;
+};
+
+/**
+ * The part of a payment that is income. GST collected for the government is
+ * not, so each payment is split in proportion and the last takes what is left.
+ */
+export function incomePart({ settled, alreadySettled, alreadyIncome, total, taxable, decimals }: PaymentInput): string {
+  const finishes = new Money(alreadySettled).plus(settled).greaterThanOrEqualTo(total);
+  const part = finishes
+    ? new Money(taxable).minus(alreadyIncome)
+    : new Money(settled).times(taxable).dividedBy(total).toDecimalPlaces(decimals);
+  return part.toFixed();
+}
