@@ -41,7 +41,7 @@ export const appNav: NavGroup[] = [
       { title: "Tax calculator", icon: Calculator, href: "/app/tax-calculator" },
       { title: "GST / VAT", icon: Landmark },
       { title: "Compliance", icon: CalendarClock },
-      { title: "Reports", icon: ChartColumn },
+      { title: "Reports", icon: ChartColumn, href: "/app/reports" },
     ],
   },
   {

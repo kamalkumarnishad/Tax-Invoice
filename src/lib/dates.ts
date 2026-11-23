@@ -33,7 +33,30 @@ export function monthsOfTaxYear(start: string): string[] {
   });
 }
 
-export function formatMonth(month: string, style: "short" | "long", locale = "en-IN"): string {
-  const options = style === "short" ? ({ month: "short" } as const) : ({ month: "long", year: "numeric" } as const);
-  return new Intl.DateTimeFormat(locale, { ...options, timeZone: "UTC" }).format(new Date(`${month}-01T00:00:00Z`));
+/** Every month from one date to another, both included. */
+export function monthsBetween(from: string, to: string): string[] {
+  const index = (date: string) => Number(date.slice(0, 4)) * 12 + Number(date.slice(5, 7)) - 1;
+  const first = index(from);
+  return Array.from({ length: Math.max(0, index(to) - first + 1) }, (_, offset) => {
+    const month = first + offset;
+    return `${Math.floor(month / 12)}-${String((month % 12) + 1).padStart(2, "0")}`;
+  });
+}
+
+export function endOfMonth(date: string): string {
+  // Day 0 of the next month is the last day of this one.
+  const last = new Date(Date.UTC(Number(date.slice(0, 4)), Number(date.slice(5, 7)), 0)).getUTCDate();
+  return `${date.slice(0, 8)}${String(last).padStart(2, "0")}`;
+}
+
+const monthStyles = {
+  short: { month: "short" },
+  compact: { month: "short", year: "2-digit" },
+  long: { month: "long", year: "numeric" },
+} as const;
+
+export function formatMonth(month: string, style: keyof typeof monthStyles, locale = "en-IN"): string {
+  return new Intl.DateTimeFormat(locale, { ...monthStyles[style], timeZone: "UTC" }).format(
+    new Date(`${month}-01T00:00:00Z`),
+  );
 }

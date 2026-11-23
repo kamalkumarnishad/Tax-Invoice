@@ -31,3 +31,17 @@ export function roundRate(rate: string | number): string {
 export function plain(amount: string): string {
   return new Money(amount).toFixed();
 }
+
+/** Negative when `a` is smaller, zero when equal, positive when larger. */
+export function compare(a: string, b: string): number {
+  return new Money(a).comparedTo(b);
+}
+
+/** `part` as a share of `whole`, such as "12.5". */
+export function percentOf(part: string, whole: string): string {
+  return isZero(whole) ? "0" : new Money(part).dividedBy(whole).times(100).toDecimalPlaces(1).toFixed();
+}
+
+export function isZero(amount: string): boolean {
+  return new Money(amount).isZero();
+}
