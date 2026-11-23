@@ -1,0 +1,21 @@
+node_modules/
+.next/
+out/
+build/
+coverage/
+next-env.d.ts
+*.tsbuildinfo
+*.log
+.DS_Store
+
+# secrets
+.env
+.env.*
+!.env.example
+
+# local development database
+.pglite/
+
+# local tooling and planning notes (this repository is public)
+.claude/
+tax-app-final-plan.md
