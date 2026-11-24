@@ -94,7 +94,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </SettingsCard>
         </TabsContent>
         <TabsContent value="business">
-          <SettingsCard title="Business details" description="Shown on your invoices. Issued invoices keep the details they were issued with.">
+          <SettingsCard title="Business details" description="Shown on your invoices, apart from the state. Issued invoices keep the details they were issued with.">
             <BusinessForm
               values={{
                 businessName: business?.businessName ?? user.name,

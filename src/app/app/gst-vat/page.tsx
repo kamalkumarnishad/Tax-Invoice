@@ -84,7 +84,7 @@ export default async function GstPage() {
               </Line>
               {summary.limit && <Line label="Registration limit">{rupees(summary.limit)}</Line>}
             </dl>
-            <div className="grid gap-2 text-muted-foreground">
+            <div className="grid gap-2 text-muted-foreground empty:hidden">
               {turnover.foreignUnpaid.length > 0 && (
                 <p>
                   Not counted until paid:{" "}
