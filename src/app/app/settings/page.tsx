@@ -14,7 +14,7 @@ import { describeDevice, timezoneOptions } from "@/lib/options";
 import { getBusiness } from "@/server/queries/invoices";
 import { listActiveSessions } from "@/server/queries/sessions";
 import { getCurrencies, getTaxProfile, getUserSettings } from "@/server/queries/settings";
-import { taxProfileSchema } from "@/validations/settings";
+import type { TaxProfileInput } from "@/validations/settings";
 
 export const metadata: Metadata = { title: "Settings" };
 
@@ -42,12 +42,14 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     pan: "",
     removePan: false,
     gstin: "",
+    gstFiling: "",
     hasLut: false,
     lutArn: "",
     lutValidFrom: "",
     lutValidTo: "",
   };
-  const taxValues = taxProfileSchema.parse({
+  // Not parsed: a profile saved before a rule was added must still open, so it can be completed.
+  const taxValues = {
     ...blank,
     ...(profile && {
       taxYearStart: profile.taxYearStart,
@@ -56,12 +58,13 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       businessStructure: profile.businessStructure ?? blank.businessStructure,
       presumptiveTaxation: profile.presumptiveTaxation,
       gstin: profile.gstin ?? "",
+      gstFiling: profile.gstFiling ?? "",
       hasLut: profile.hasLut,
       lutArn: profile.lutArn ?? "",
       lutValidFrom: profile.lutValidFrom ?? "",
       lutValidTo: profile.lutValidTo ?? "",
     }),
-  });
+  } as TaxProfileInput;
 
   return (
     <div className="grid grid-cols-1 gap-6">

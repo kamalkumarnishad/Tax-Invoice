@@ -5,6 +5,7 @@ import { keysOf } from "./common";
 export const taxYears = [{ value: "2026-04-01", end: "2027-03-31", label: "FY 2026-27" }] as const;
 
 export const regimes = { new_regime: "New regime", old_regime: "Old regime" } as const;
+export const gstFilings = { monthly: "Monthly", quarterly: "Quarterly (QRMP)" } as const;
 export const businessStructures = {
   freelancer: "Freelancer or professional",
   sole_proprietor: "Sole proprietor",
@@ -26,11 +27,13 @@ export const taxProfileSchema = z
     pan: blankOr(/^[A-Z]{5}\d{4}[A-Z]$/, "A PAN looks like ABCDE1234F"),
     removePan: z.boolean(),
     gstin: blankOr(/^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/, "A GSTIN looks like 27ABCDE1234F1Z5"),
+    gstFiling: z.enum(["", ...keysOf(gstFilings)]),
     hasLut: z.boolean(),
     lutArn: upper.max(50),
     lutValidFrom: blankOrDate,
     lutValidTo: blankOrDate,
   })
+  .refine((v) => v.gstin === "" || v.gstFiling !== "", { path: ["gstFiling"], message: "Choose how often you file" })
   .refine((v) => !v.hasLut || v.lutArn !== "", { path: ["lutArn"], message: "Enter the LUT reference number" })
   .refine((v) => !v.hasLut || !v.lutValidFrom || !v.lutValidTo || v.lutValidFrom <= v.lutValidTo, {
     path: ["lutValidTo"],

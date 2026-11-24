@@ -89,6 +89,7 @@ beforeEach(async () => {
       pan: "",
       removePan: false,
       gstin: "27ABCDE1234F1Z5",
+      gstFiling: "monthly",
       hasLut: false,
       lutArn: "",
       lutValidFrom: "",

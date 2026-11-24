@@ -70,6 +70,7 @@ const taxProfile: TaxProfileInput = {
   pan: "",
   removePan: false,
   gstin: "27ABCDE1234F1Z5",
+      gstFiling: "monthly",
   hasLut: true,
   lutArn: "AD2704260000001",
   lutValidFrom: "2026-04-01",

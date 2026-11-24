@@ -31,6 +31,7 @@ export async function saveTaxProfile(tx: Tx, userId: string, input: TaxProfileIn
     businessStructure: input.businessStructure,
     presumptiveTaxation: input.presumptiveTaxation,
     gstin: input.gstin || null,
+    gstFiling: (input.gstin && input.gstFiling) || null,
     hasLut: input.hasLut,
     lutArn: input.hasLut ? input.lutArn : null,
     lutValidFrom: (input.hasLut && input.lutValidFrom) || null,

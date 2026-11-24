@@ -16,6 +16,7 @@ const base: TaxProfileInput = {
   pan: "",
   removePan: false,
   gstin: "",
+  gstFiling: "",
   hasLut: false,
   lutArn: "",
   lutValidFrom: "",
@@ -125,7 +126,7 @@ describe("tax profile", () => {
   });
 
   it("accepts lower-case PAN and GSTIN", () => {
-    const result = taxProfileSchema.parse({ ...base, pan: " abcde1234f ", gstin: "27abcde1234f1z5" });
+    const result = taxProfileSchema.parse({ ...base, pan: " abcde1234f ", gstin: "27abcde1234f1z5", gstFiling: "monthly" });
     expect(result).toMatchObject({ pan: "ABCDE1234F", gstin: "27ABCDE1234F1Z5" });
   });
 });

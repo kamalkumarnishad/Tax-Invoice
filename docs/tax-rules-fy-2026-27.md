@@ -188,6 +188,19 @@ These become the tax engine's tests. Resident individual under 60, no special-ra
 5. A chartered accountant checks this sheet before the calculator is public. Until then the rule set in
    `src/server/services/tax-engine/jurisdictions/india-2026-27.ts` stays `pending_review`.
 
+## 13. GST returns (added 24 November 2026 for the calendar)
+
+| Return | Monthly filers | Quarterly filers (QRMP) | Mark |
+|---|---|---|---|
+| GSTR-1 | 11th of the next month | 13th after the quarter | B |
+| GSTR-3B | 20th of the next month | 22nd or 24th after the quarter, by state | B, X for which states |
+| PMT-06 payment | Not needed | 25th, for the first two months of a quarter | B |
+
+- The calendar shows the 22nd to every quarterly filer, since it is the earlier date, and says it may be the 24th.
+- Dates are not moved for weekends, holidays or extensions.
+- The 57th GST Council release [5] changes none of these dates.
+- Like the calculator, statutory dates stay off in production until a chartered accountant has checked them.
+
 ## Sources
 
 1. [Finance Bill 2026 explanatory memorandum, third-party copy](https://www.caalley.com/budget2026/memo.pdf)
@@ -220,3 +233,6 @@ These become the tax engine's tests. Resident individual under 60, no special-ra
     [LUT for FY 2026-27](https://www.setindiabiz.com/blog/gst-lut-filing-fy-2026-27) and SAC
     [998313](https://busy.in/sac-code-998313/), [998314](https://busy.in/sac-code-998314/) (the last three seen in
     search results only)
+15. [SoftwareSuggest: GST due dates 2026-27](https://www.softwaresuggest.com/blog/gst-filing-due-dates/),
+    [GimBooks](https://www.gimbooks.com/blog/gst-return-dates-for-monthly-gst-calendar) and
+    [LegalDev](https://legaldev.in/blog/gst-due-dates-2026-27-compliance-calendar) (seen in search results only)

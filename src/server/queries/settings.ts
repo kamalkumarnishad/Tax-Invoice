@@ -39,6 +39,7 @@ export function getTaxProfile(userId: string) {
         businessStructure: taxProfiles.businessStructure,
         panLast4: taxProfiles.panLast4,
         gstin: taxProfiles.gstin,
+        gstFiling: taxProfiles.gstFiling,
         presumptiveTaxation: taxProfiles.presumptiveTaxation,
         hasLut: taxProfiles.hasLut,
         lutArn: taxProfiles.lutArn,

@@ -38,6 +38,8 @@ export const taxProfiles = pgTable(
     panEncrypted: text("pan_encrypted"),
     panLast4: varchar("pan_last4", { length: 4 }),
     gstin: varchar("gstin", { length: 15 }),
+    /** monthly or quarterly, when there is a GSTIN. */
+    gstFiling: varchar("gst_filing", { length: 20 }),
     presumptiveTaxation: boolean("presumptive_taxation").notNull().default(false),
     hasLut: boolean("has_lut").notNull().default(false),
     lutArn: varchar("lut_arn", { length: 50 }),

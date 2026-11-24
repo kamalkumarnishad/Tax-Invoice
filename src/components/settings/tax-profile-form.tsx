@@ -14,6 +14,7 @@ import { saveTaxProfileAction } from "@/server/actions/settings";
 import { ageGroups } from "@/server/services/tax-engine/types";
 import {
   businessStructures,
+  gstFilings,
   regimes,
   type TaxProfileInput,
   taxProfileSchema,
@@ -26,7 +27,7 @@ export function TaxProfileForm({ values, panLast4 }: TaxProfileFormProps) {
   const form = useForm<TaxProfileInput>({ resolver: zodResolver(taxProfileSchema), defaultValues: values });
   const { errors, isSubmitting } = form.formState;
   const field = registerWithValues(form, values);
-  const hasLut = form.watch("hasLut");
+  const [hasLut, gstin] = form.watch(["hasLut", "gstin"]);
 
   const onSubmit = form.handleSubmit(async (input) => {
     const result = await saveTaxProfileAction(input);
@@ -86,6 +87,15 @@ export function TaxProfileForm({ values, panLast4 }: TaxProfileFormProps) {
           error={errors.gstin?.message}
           {...field.text("gstin")}
         />
+        {gstin.trim() !== "" && (
+          <SelectField
+            id="gstFiling"
+            label="GST returns"
+            options={[{ value: "", label: "Choose how often" }, ...toOptions(gstFilings)]}
+            error={errors.gstFiling?.message}
+            {...field.text("gstFiling")}
+          />
+        )}
       </div>
       <CheckboxField
         id="hasLut"
