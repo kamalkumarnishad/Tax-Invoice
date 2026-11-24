@@ -9,18 +9,26 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/auth";
-import { formatMonth, taxYearLabel, taxYearStartFor } from "@/lib/dates";
+import { relativeDays } from "@/lib/compliance";
+import { formatCalendarDate, formatMonth, taxYearLabel, taxYearStartFor } from "@/lib/dates";
 import { withUser } from "@/lib/db";
 import { formatCurrency } from "@/lib/format";
 import { isNegative, plain } from "@/lib/money";
+import { getCalendar } from "@/server/queries/compliance";
 import { getTaxProfile, getUserDefaults } from "@/server/queries/settings";
+import { isOpen } from "@/server/services/compliance/calendar";
 import { summarise } from "@/server/services/dashboard";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  const [{ currency, today }, profile] = await Promise.all([getUserDefaults(user.id), getTaxProfile(user.id)]);
+  const [{ currency, today }, profile, calendar] = await Promise.all([
+    getUserDefaults(user.id),
+    getTaxProfile(user.id),
+    getCalendar(user),
+  ]);
+  const next = calendar.items.filter(isOpen).slice(0, 3);
   const year = taxYearStartFor(today);
   const summary = await withUser(user.id, (tx) => summarise(tx, { userId: user.id, currency, year }));
 
@@ -89,6 +97,30 @@ export default async function DashboardPage() {
             ? "1 record was made in another default currency and is not included."
             : `${summary.otherCurrencyRecords} records were made in another default currency and are not included.`}
         </p>
+      )}
+      {next.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between gap-2">
+              <h2 className="text-base md:text-base">Next deadlines</h2>
+              <Link href="/app/compliance" className="text-sm font-normal underline underline-offset-4">
+                All
+              </Link>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="divide-y text-sm">
+              {next.map((item) => (
+                <li key={item.key} className="flex flex-wrap justify-between gap-2 py-2">
+                  <span className="min-w-0 break-words">{item.title}</span>
+                  <span className={item.state === "overdue" ? "text-destructive" : "text-muted-foreground"}>
+                    {formatCalendarDate(item.dueDate)} · {relativeDays(item.daysLeft)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
       )}
       <Card>
         <CardHeader>
