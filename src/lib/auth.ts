@@ -28,8 +28,10 @@ export function getAuth(): Promise<Auth> {
 }
 
 export const getSession = cache(async () => {
+  // First, so that a build sees this page is dynamic and stops before opening the database.
+  const requestHeaders = await headers();
   const auth = await getAuth();
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await auth.api.getSession({ headers: requestHeaders });
   return session?.user.isActive ? session : null;
 });
 
