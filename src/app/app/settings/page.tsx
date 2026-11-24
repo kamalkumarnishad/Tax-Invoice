@@ -14,6 +14,7 @@ import { describeDevice, timezoneOptions } from "@/lib/options";
 import { getBusiness } from "@/server/queries/invoices";
 import { listActiveSessions } from "@/server/queries/sessions";
 import { getCurrencies, getTaxProfile, getUserSettings } from "@/server/queries/settings";
+import type { BusinessInput } from "@/validations/invoices";
 import type { TaxProfileInput } from "@/validations/settings";
 
 export const metadata: Metadata = { title: "Settings" };
@@ -98,6 +99,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               values={{
                 businessName: business?.businessName ?? user.name,
                 address: business?.address ?? "",
+                state: (business?.state ?? "") as BusinessInput["state"],
                 email: business?.email ?? "",
                 phone: business?.phone ?? "",
                 paymentInstructions: business?.paymentInstructions ?? "",

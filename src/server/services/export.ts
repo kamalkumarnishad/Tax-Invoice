@@ -1,8 +1,10 @@
 import "server-only";
-import { and, asc, between, eq } from "drizzle-orm";
-import { auditLogs, clients, expenseRecords, incomeRecords } from "@/db/schema";
+import { and, asc, between, eq, ne } from "drizzle-orm";
+import { auditLogs, clients, expenseRecords, incomeRecords, invoices } from "@/db/schema";
+import { countryName } from "@/lib/country-names";
 import { toCsv } from "@/lib/csv";
-import { plain } from "@/lib/money";
+import { type TaxMode, taxModes } from "@/lib/invoice";
+import { half, plain, subtract } from "@/lib/money";
 import { expenseCategories } from "@/validations/expenses";
 import { incomeCategories, incomeStatuses, paymentMethods } from "@/validations/income";
 import type { DateRange } from "@/validations/reports";
@@ -84,7 +86,53 @@ async function expensesCsv(tx: Tx, userId: string, { from, to }: DateRange) {
   };
 }
 
-export type ExportKind = "income" | "expenses";
+async function invoicesCsv(tx: Tx, userId: string, { from, to }: DateRange) {
+  // Cancelled ones stay in, so every number that was used is accounted for.
+  const rows = await tx
+    .select()
+    .from(invoices)
+    .where(
+      and(eq(invoices.userId, userId), ne(invoices.status, "draft"), between(invoices.invoiceDate, from, to)),
+    )
+    .orderBy(asc(invoices.invoiceDate), asc(invoices.invoiceNumber))
+    .limit(MAX_EXPORT_ROWS + 1);
+  const header = [
+    "Date", "Number", "Status", "Client", "Client tax ID", "Country", "SAC", "Place of supply", "GST", "Currency",
+    "Taxable value", "GST rate", "IGST", "CGST", "SGST", "Total", "LUT ARN",
+  ];
+  return {
+    count: rows.length,
+    csv: toCsv(
+      header,
+      rows.map((r) => {
+        const mode = r.taxMode as TaxMode;
+        const split = mode === "cgst_sgst" ? half(r.taxAmount) : "0";
+        return [
+          r.invoiceDate,
+          r.invoiceNumber,
+          r.status === "cancelled" ? "Cancelled" : "Issued",
+          r.buyer?.company ?? r.buyer?.name ?? null,
+          r.buyer?.taxId ?? null,
+          r.buyer?.country ? countryName(r.buyer.country) : null,
+          r.sacCode,
+          r.placeOfSupply,
+          taxModes[mode],
+          r.currency,
+          subtract(r.subtotal, r.discount),
+          plain(r.taxRate),
+          mode === "igst" ? plain(r.taxAmount) : "0",
+          split,
+          split,
+          plain(r.total),
+          mode === "export_lut" ? (r.seller?.lutArn ?? null) : null,
+        ];
+      }),
+    ),
+  };
+}
+
+const exporters = { income: incomeCsv, expenses: expensesCsv, invoices: invoicesCsv };
+export type ExportKind = keyof typeof exporters;
 
 /** Every record in the range, whatever its currency or status. Call inside `withUser`. */
 export async function exportRecords(
@@ -93,7 +141,7 @@ export async function exportRecords(
   kind: ExportKind,
   range: DateRange,
 ): Promise<ActionResult<string>> {
-  const { csv, count } = await (kind === "income" ? incomeCsv : expensesCsv)(tx, userId, range);
+  const { csv, count } = await exporters[kind](tx, userId, range);
   // A file that silently stopped short would be wrong, so none is given.
   if (count > MAX_EXPORT_ROWS) return fail(`More than ${MAX_EXPORT_ROWS} records. Choose a shorter range.`);
   await tx.insert(auditLogs).values({ userId, action: `${kind}.export`, details: { ...range, count } });

@@ -146,14 +146,23 @@ the final ones).
 What this means for the app: for received income, the **actual rupees credited** matter most. The app's ECB rate is
 only an estimate, and that should be said next to any tax figure.
 
-## 10. GST (information only, not part of the tax estimate)
+## 10. GST (updated 24 November 2026)
 
-- Registration above ₹20 lakh turnover for services (B). ₹10 lakh in some states; sources disagree on which (X).
-- Whether an exporter below the limit must register (X). One source cites an exemption for inter-state services,
-  notification 10/2017.
-- An LUT covers one financial year, 1 April 2026 to 31 March 2027, and must be filed before exporting (B).
-- The GST Council recommended **easier export-of-services rules on 8 October 2026** (A). They are not law until
-  notified, so do not code them.
+| Rule | Mark |
+|---|---|
+| Registration limit for services: turnover above ₹20 lakh in a year | A |
+| ₹10 lakh in Manipur, Mizoram, Nagaland and Tripura only | A |
+| Turnover is all-India, **includes exports**, and leaves out GST itself | A |
+| Inter-state services get the same limit (notification 10/2017-Integrated Tax) | A |
+| Exporters of services below the limit need not register | B, but some practitioners disagree |
+| An LUT covers one financial year, 1 April 2026 to 31 March 2027, filed before exporting | B |
+| Payment for services exported under an LUT is expected within one year of the invoice | A |
+| The GST Council recommended easier export rules on 8 October 2026. Not law until notified | A |
+
+- The official texts [16, 17, 18] are editions from 2018 to 2023. A February 2026 parliamentary answer quoted by
+  TaxGuru [14] says no revision of the limits was recommended.
+- The GST page shows figures and things to check. It never says whether someone must register.
+- Interest is left out of turnover. Whether bank interest counts is not confirmed (X).
 
 ## 11. Worked examples
 
@@ -236,3 +245,8 @@ These become the tax engine's tests. Resident individual under 60, no special-ra
 15. [SoftwareSuggest: GST due dates 2026-27](https://www.softwaresuggest.com/blog/gst-filing-due-dates/),
     [GimBooks](https://www.gimbooks.com/blog/gst-return-dates-for-monthly-gst-calendar) and
     [LegalDev](https://legaldev.in/blog/gst-due-dates-2026-27-compliance-calendar) (seen in search results only)
+16. [ICAI study material: registration, law as of 30 April 2023](https://resource.cdn.icai.org/74818bos60500-cp9.pdf)
+17. GST Council flyers: [registration](https://gstcouncil.gov.in/sites/default/files/e-version-gst-flyers/Registration_under_GST_Law_new.pdf)
+    and [aggregate turnover](https://gstcouncil.gov.in/sites/default/files/e-version-gst-flyers/Aggregate%20Turnover..pdf)
+18. [CBIC FAQ on GST, third edition, December 2018](https://gstcouncil.gov.in/sites/default/files/2024-02/final-gst-fq-31218.pdf)
+19. [Unadhi: GST for freelancers with foreign clients, October 2026](https://unadhi.com/guides/freelancer-gst-registration-2026-export-of-services.html)

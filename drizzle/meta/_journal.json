@@ -78,6 +78,13 @@
       "when": 1795494642222,
       "tag": "0010_compliance",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1795495748008,
+      "tag": "0011_business_state",
+      "breakpoints": true
     }
   ]
 }

@@ -5,9 +5,11 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { FormError } from "@/components/forms/form-error";
 import { registerWithValues } from "@/components/forms/register";
+import { SelectField } from "@/components/forms/select-field";
 import { TextField } from "@/components/forms/text-field";
 import { TextareaField } from "@/components/forms/textarea-field";
 import { Button } from "@/components/ui/button";
+import { indianStates } from "@/lib/states";
 import { saveBusinessAction } from "@/server/actions/invoices";
 import { type BusinessInput, businessSchema } from "@/validations/invoices";
 
@@ -33,6 +35,13 @@ export function BusinessForm({ values }: { values: BusinessInput }) {
           {...field.text("businessName")}
         />
         <TextField id="business-email" label="Email" type="email" error={errors.email?.message} {...field.text("email")} />
+        <SelectField
+          id="state"
+          label="State"
+          options={[{ value: "", label: "Not set" }, ...indianStates.map((state) => ({ value: state, label: state }))]}
+          error={errors.state?.message}
+          {...field.text("state")}
+        />
         <TextField id="phone" label="Phone" error={errors.phone?.message} {...field.text("phone")} />
       </div>
       <TextareaField id="address" label="Address" error={errors.address?.message} {...field.text("address")} />

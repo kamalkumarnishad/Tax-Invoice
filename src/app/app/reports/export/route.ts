@@ -6,7 +6,7 @@ import { getUserDefaults } from "@/server/queries/settings";
 import { exportRecords } from "@/server/services/export";
 import { parseRange } from "@/validations/reports";
 
-const kinds = z.enum(["income", "expenses"]);
+const kinds = z.enum(["income", "expenses", "invoices"]);
 
 export async function GET(request: Request) {
   const session = await getSession();

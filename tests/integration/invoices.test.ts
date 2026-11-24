@@ -55,6 +55,7 @@ async function draft(change: Partial<InvoiceFormValues> = {}, userId = alice) {
 const business = {
   businessName: "Alice Studio",
   address: "1 Test Road",
+  state: "" as const,
   email: "",
   phone: "",
   paymentInstructions: "Pay by bank",

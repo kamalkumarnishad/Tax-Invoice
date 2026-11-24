@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { chargesGst, taxModes } from "@/lib/invoice";
+import { indianStates } from "@/lib/states";
 import { currencyCode, keysOf, optionalText, uuid } from "./common";
 import { incomeCategories, paymentMethods } from "./income";
 import { exchangeRate, optionalAmount, positiveAmount, recordDate } from "./money";
@@ -84,6 +85,7 @@ export type PaymentInput = z.output<typeof paymentSchema>;
 
 export const businessSchema = z.object({
   businessName: z.string().trim().min(1, "Enter your name or business name").max(255),
+  state: z.enum(["", ...indianStates]),
   address: z.string().trim().min(1, "Enter your address").max(1000, "Use at most 1000 characters"),
   email: z.union([z.literal(""), z.email("Enter a valid email address").max(255)]),
   phone: optionalText(50),

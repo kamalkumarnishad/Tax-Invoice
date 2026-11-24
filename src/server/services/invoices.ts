@@ -219,6 +219,7 @@ export async function saveBusiness(tx: Tx, userId: string, input: BusinessInput)
   const values = {
     businessName: input.businessName,
     address: input.address,
+    state: orNull(input.state),
     email: orNull(input.email),
     phone: orNull(input.phone),
     paymentInstructions: orNull(input.paymentInstructions),

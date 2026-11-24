@@ -29,6 +29,8 @@ export const businessProfiles = pgTable("business_profiles", {
     .references(() => users.id, { onDelete: "cascade" }),
   businessName: varchar("business_name", { length: 255 }).notNull(),
   address: text("address").notNull(),
+  /** Decides the GST registration limit. */
+  state: varchar("state", { length: 100 }),
   email: varchar("email", { length: 255 }),
   phone: varchar("phone", { length: 50 }),
   paymentInstructions: text("payment_instructions"),

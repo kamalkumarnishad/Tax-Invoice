@@ -77,7 +77,7 @@ beforeEach(async () => {
   const [client] = await db.insert(clients).values({ userId: alice, name: "Acme" }).returning({ id: clients.id });
   acme = client!.id;
   await as(alice, (tx) =>
-    saveBusiness(tx, alice, { businessName: "A", address: "B", email: "", phone: "", paymentInstructions: "" }),
+    saveBusiness(tx, alice, { businessName: "A", address: "B", state: "", email: "", phone: "", paymentInstructions: "" }),
   );
   await as(alice, (tx) =>
     saveTaxProfile(tx, alice, {
