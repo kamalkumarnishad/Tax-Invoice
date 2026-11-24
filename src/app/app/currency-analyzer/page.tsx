@@ -2,6 +2,7 @@ import { Coins } from "lucide-react";
 import type { Metadata } from "next";
 import { after } from "next/server";
 import { Calculator } from "@/components/currency-analyzer/calculator";
+import { Compare } from "@/components/currency-analyzer/compare";
 import { LatestTable } from "@/components/currency-analyzer/latest-table";
 import { RangeControls } from "@/components/currency-analyzer/range-controls";
 import { Trend } from "@/components/currency-analyzer/trend";
@@ -90,11 +91,14 @@ export default async function CurrencyAnalyzerPage({ searchParams }: Props) {
       <Section title={`Latest rates in ${base}`}>
         <LatestTable rows={latest} base={base} currencies={currencies} updated={updated} />
       </Section>
-      <section id="history" className="grid scroll-mt-20 grid-cols-1 gap-4">
+      <section className="grid grid-cols-1 gap-4">
         <h2 className="text-lg md:text-xl">History</h2>
         <RangeControls params={params} today={today} />
         <Section title={`${params.from} to ${params.to}`}>
           <Trend {...analyzer} />
+        </Section>
+        <Section title={`Compare in ${base}`}>
+          <Compare {...analyzer} />
         </Section>
       </section>
       <p className="text-sm text-muted-foreground">

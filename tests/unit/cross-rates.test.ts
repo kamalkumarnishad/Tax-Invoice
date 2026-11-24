@@ -114,6 +114,7 @@ describe("what an address asks for", () => {
       from: "USD",
       to: "INR",
       compared: ["USD", "EUR", "GBP"],
+      tooMany: false,
       range: "1y",
       start: "2025-11-24",
       end: "2026-11-24",
@@ -135,7 +136,7 @@ describe("what an address asks for", () => {
     [{ from: "INR", to: "INR" }, { from: "USD", to: "INR" }],
     [{ to: "USD" }, { from: "EUR", to: "USD" }],
     [{ with: "INR" }, { compared: ["USD", "EUR", "GBP"] }],
-    [{ with: ["AED", "AUD", "CAD", "EUR", "GBP"] }, { compared: ["AED", "AUD", "CAD", "EUR"] }],
+    [{ with: ["AED", "AUD", "CAD", "EUR", "GBP"] }, { compared: ["AED", "AUD", "CAD", "EUR"], tooMany: true }],
     [{ range: "constructor" }, { range: "1y" }],
     [{ range: ["3m", "1m"] }, { range: "3m" }],
   ])("%j becomes %j", (raw, expected) => {

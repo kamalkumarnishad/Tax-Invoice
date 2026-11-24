@@ -71,7 +71,7 @@ export function Calculator({ currencies, initial, initialRate, today, firstDay }
         <Button
           type="button"
           variant="outline"
-          className="sm:order-last sm:w-fit xl:order-none xl:mt-5.5"
+          className="max-sm:min-h-11 sm:order-last sm:w-fit xl:order-none xl:mt-5.5"
           onClick={() => change({ ...pair, from: pair.to, to: pair.from })}
         >
           <ArrowLeftRight /> Swap

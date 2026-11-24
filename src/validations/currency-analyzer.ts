@@ -32,6 +32,8 @@ export type AnalyzerParams = {
   from: string;
   to: string;
   compared: string[];
+  /** More were asked for than can be shown. */
+  tooMany: boolean;
   /** Empty for dates the user chose. */
   range: RangeKey | "";
   start: string;
@@ -49,7 +51,8 @@ export function parseAnalyzer(raw: Raw, { today, base, codes }: Context): Analyz
   const from = preferred && preferred !== to ? preferred : to === "USD" ? "EUR" : "USD";
 
   const asked = [raw.with ?? []].flat();
-  const chosen = codes.filter((code) => code !== base && asked.includes(code)).slice(0, MAX_COMPARED);
+  const wanted = codes.filter((code) => code !== base && asked.includes(code));
+  const chosen = wanted.slice(0, MAX_COMPARED);
   const usual = ["USD", "EUR", "GBP"].filter((code) => code !== base && codes.includes(code));
   const compared = chosen.length > 0 ? chosen : usual;
 
@@ -58,7 +61,7 @@ export function parseAnalyzer(raw: Raw, { today, base, codes }: Context): Analyz
     start: monthsBefore(today, ranges[key].months),
     end: today,
   });
-  const common = { from, to, compared };
+  const common = { from, to, compared, tooMany: wanted.length > MAX_COMPARED };
   const start = single(raw.start);
   const end = single(raw.end);
   if (start !== undefined || end !== undefined) {

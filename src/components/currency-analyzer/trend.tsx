@@ -1,3 +1,4 @@
+import Form from "next/form";
 import { SelectField } from "@/components/forms/select-field";
 import { Button } from "@/components/ui/button";
 import { displayRate, stepFor, summarise, thin } from "@/lib/cross-rates";
@@ -13,12 +14,12 @@ export function axisLabel(date: string, start: string, end: string): string {
   return formatCalendarDate(date).replace(/ \d{4}$/, "");
 }
 
-function Figure({ label, value, note }: { label: string; value: string; note?: string }) {
+function Figure({ label, value, note }: { label: string; value: string; note: string }) {
   return (
-    <div className="grid content-start gap-1 rounded-lg border p-3">
+    <div className="grid content-start gap-1 rounded-lg border p-3 last:col-span-2 lg:last:col-span-1">
       <dt className="text-sm text-muted-foreground">{label}</dt>
       <dd className="font-mono font-medium tabular-nums">{value}</dd>
-      {note && <dd className="text-xs text-muted-foreground">{note}</dd>}
+      <dd className="text-xs text-muted-foreground">{note}</dd>
     </div>
   );
 }
@@ -34,18 +35,19 @@ export function Trend({ params, history, currencies }: Pick<Analyzer, "params" |
 
   return (
     <div className="grid grid-cols-1 gap-6">
-      <form
+      <Form
         key={pair}
-        action="/app/currency-analyzer#history"
+        action="/app/currency-analyzer"
+        scroll={false}
         className="grid grid-cols-1 items-end gap-3 sm:grid-cols-[1fr_1fr_auto]"
       >
         <HiddenFields fields={kept(params, "pair")} />
         <SelectField id="from" name="from" label="Currency" options={currencies} defaultValue={from} />
         <SelectField id="to" name="to" label="In" options={currencies} defaultValue={to} />
-        <Button type="submit" variant="outline">
+        <Button type="submit" variant="outline" className="max-sm:min-h-11">
           Show
         </Button>
-      </form>
+      </Form>
       {summary ? (
         <>
           <dl className="grid grid-cols-2 gap-3 lg:grid-cols-5">

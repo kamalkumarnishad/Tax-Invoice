@@ -100,7 +100,10 @@ export async function compareCurrencies(
   end: string,
 ): Promise<Comparison | null> {
   const wanted = [base, ...codes];
-  const days = (await loadDays(tx, wanted, start, end)).filter(({ euro }) => wanted.every((code) => euro.has(code)));
+  const loaded = await loadDays(tx, wanted, start, end);
+  const complete = loaded.filter(({ euro }) => wanted.every((code) => euro.has(code)));
+  // The first and last days are always kept, so the changes below are exact.
+  const days = thin(complete, stepFor(start, end));
   const series = new Map(codes.map((code) => [code, pairPoints(days, code, base)]));
   const first = days[0];
   if (!first) return null;
@@ -115,7 +118,7 @@ export async function compareCurrencies(
     ),
   }));
   return {
-    points: thin(points, stepFor(start, end)),
+    points,
     rows: codes.map((code) => {
       const rates = series.get(code)!;
       const [from, to] = [rates[0]!.rate, rates.at(-1)!.rate];

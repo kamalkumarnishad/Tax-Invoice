@@ -1,3 +1,4 @@
+import Form from "next/form";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,14 +29,20 @@ export function HiddenFields({ fields }: { fields: [string, string][] }) {
   return fields.map(([name, value]) => <input key={`${name}-${value}`} type="hidden" name={name} value={value} />);
 }
 
-/** Links and a plain GET form, so a view can be bookmarked and works without JavaScript. */
+/** Links and a GET form, so a view can be bookmarked and works without JavaScript. */
 export function RangeControls({ params, today }: { params: AnalyzerParams; today: string }) {
   const others = kept(params, "period");
   return (
     <div className="grid gap-3">
       <div className="flex flex-wrap gap-2">
         {Object.entries(ranges).map(([key, { label }]) => (
-          <Button key={key} asChild size="sm" variant={params.range === key ? "secondary" : "outline"}>
+          <Button
+            key={key}
+            asChild
+            size="sm"
+            variant={params.range === key ? "secondary" : "outline"}
+            className="max-sm:min-h-11"
+          >
             <Link
               href={`${PATH}?${new URLSearchParams([...others, ["range", key as RangeKey]])}`}
               scroll={false}
@@ -46,9 +53,10 @@ export function RangeControls({ params, today }: { params: AnalyzerParams; today
           </Button>
         ))}
       </div>
-      <form
+      <Form
         key={`${params.start}${params.end}`}
-        action={`${PATH}#history`}
+        action={PATH}
+        scroll={false}
         className="grid grid-cols-2 items-end gap-3 sm:flex sm:flex-wrap"
       >
         <HiddenFields fields={others} />
@@ -60,10 +68,10 @@ export function RangeControls({ params, today }: { params: AnalyzerParams; today
           <Label htmlFor="end">To</Label>
           <Input id="end" name="end" type="date" required min={FIRST_DAY} max={today} defaultValue={params.end} />
         </div>
-        <Button type="submit" variant="outline">
+        <Button type="submit" variant="outline" className="max-sm:min-h-11">
           Show dates
         </Button>
-      </form>
+      </Form>
       {params.error && (
         <p role="alert" className="text-sm text-destructive">
           {params.error} Showing the last year instead.
