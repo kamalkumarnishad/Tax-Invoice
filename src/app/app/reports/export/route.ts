@@ -11,7 +11,7 @@ const kinds = z.enum(["income", "expenses", "invoices"]);
 export async function GET(request: Request) {
   const session = await getSession();
   if (!session) return refuse("Sign in first.", 401);
-  if (isCrossSite(request)) return refuse("Open this from the Reports page.", 403);
+  if (isCrossSite(request)) return refuse("Open this from TaxPilot AI.", 403);
 
   const params = new URL(request.url).searchParams;
   const kind = kinds.safeParse(params.get("kind"));

@@ -97,6 +97,8 @@ async function turnoverParts(tx: Tx, userId: string, from: string, to: string) {
   };
 }
 
+export type GstSummary = Awaited<ReturnType<typeof gstSummary>>;
+
 export async function gstSummary(tx: Tx, { userId, today }: Options) {
   const from = gstRules.taxYearStart;
   const to = taxYearEnd(from);
@@ -151,6 +153,7 @@ export async function gstSummary(tx: Tx, { userId, today }: Options) {
 
   const isReviewed = reviewed(gstRules.status);
   return {
+    range: { from, to },
     turnover,
     state,
     gstin: profile?.gstin ?? null,
