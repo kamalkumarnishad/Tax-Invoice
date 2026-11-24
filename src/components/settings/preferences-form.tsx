@@ -45,7 +45,7 @@ export function PreferencesForm({ values, currencies, timezones }: PreferencesFo
       <CheckboxField
         id="notificationsEnabled"
         label="Email reminders"
-        hint="Used for compliance deadlines once the calendar is available."
+        hint="For your compliance dates and tasks, 7, 3 and 1 days before."
         {...field.check("notificationsEnabled")}
       />
       <Button type="submit" disabled={isSubmitting} className="w-fit">

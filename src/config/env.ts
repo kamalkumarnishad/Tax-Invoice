@@ -18,6 +18,8 @@ export const env = createEnv({
     ),
     RESEND_API_KEY: requiredInProduction(z.string().min(1)),
     EMAIL_FROM: requiredInProduction(z.string().min(3)),
+    /** Sent by the scheduler that starts the daily jobs. */
+    CRON_SECRET: requiredInProduction(z.string().min(32)),
   },
   client: {},
   experimental__runtimeEnv: {},

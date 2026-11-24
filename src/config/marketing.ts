@@ -1,4 +1,5 @@
 import {
+  BellRing,
   Bot,
   CalendarClock,
   Calculator,
@@ -57,6 +58,12 @@ export const features: Feature[] = [
     title: "Invoices",
     description: "Invoices in nine currencies as PDF, with GST or LUT details, and payments that feed your income.",
     icon: FileText,
+    available: true,
+  },
+  {
+    title: "Task reminders",
+    description: "Add your own tax and filing tasks and get an email 7, 3 and 1 days before each one.",
+    icon: BellRing,
     available: true,
   },
   {

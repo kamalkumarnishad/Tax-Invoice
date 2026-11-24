@@ -28,6 +28,11 @@ terminal. Both are refused in production: see `.env.example` for what it require
 | `npm run db:generate` | Create a migration from schema changes |
 | `npm run db:migrate` | Apply migrations to `DATABASE_URL` |
 
+## Daily reminders
+
+`vercel.json` schedules `/api/cron/compliance-reminders` once a day. It needs `CRON_SECRET`, sent as
+`Authorization: Bearer <secret>`, which Vercel does by itself when the variable is set.
+
 ## Tax rules
 
 The rules, their sources and how sure each one is are in `docs/tax-rules-fy-2026-27.md`. The calculator gives no
