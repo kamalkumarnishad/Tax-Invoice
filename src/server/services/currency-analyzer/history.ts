@@ -64,6 +64,33 @@ export async function rateOn(tx: Tx, from: string, to: string, date: string): Pr
   return pairPoints(days, from, to).at(-1) ?? null;
 }
 
+type Wanted = { code: string; date: string };
+
+/**
+ * Looks up many dates with one query. Like `rateOn`, the answer is the rate for
+ * a date, or for the last day before it that has one, within two weeks.
+ */
+export async function ratesOn(
+  tx: Tx,
+  base: string,
+  wanted: Wanted[],
+): Promise<(code: string, date: string) => RatePoint | null> {
+  const dates = wanted.map(({ date }) => date).sort();
+  const first = dates[0];
+  const last = dates.at(-1);
+  if (!first || !last) return () => null;
+
+  const codes = [...new Set(wanted.map(({ code }) => code))];
+  const days = await loadDays(tx, [base, ...codes], addDays(first, -LOOK_BACK_DAYS), last);
+  const points = new Map(codes.map((code) => [code, pairPoints(days, code, base)]));
+  return (code, date) => {
+    if (code === base) return { date, rate: "1" };
+    const earliest = addDays(date, -LOOK_BACK_DAYS);
+    const found = points.get(code)?.findLast((point) => point.date <= date);
+    return found && found.date >= earliest ? found : null;
+  };
+}
+
 /** Every day in the range that has a rate. */
 export async function pairHistory(tx: Tx, from: string, to: string, start: string, end: string): Promise<RatePoint[]> {
   return pairPoints(await loadDays(tx, [from, to], start, end), from, to);
