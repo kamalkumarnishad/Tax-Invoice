@@ -63,6 +63,14 @@ jobs:
         run: |
           psql postgres://postgres:postgres@localhost:5432/postgres -c \
             "create role app_owner login password 'owner' createrole createdb bypassrls nosuperuser; grant pg_signal_backend to app_owner"
+      - name: Create the tables with the command in the deployment guide
+        env:
+          DATABASE_URL: postgres://app_owner:owner@localhost:5432/guide
+        run: |
+          psql postgres://app_owner:owner@localhost:5432/postgres -c "create database guide"
+          npm run db:migrate
+          npm run db:migrate
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -c "set role taxpilot_app; select count(*) from currencies"
       - name: Test
         env:
           TEST_DATABASE_URL: postgres://app_owner:owner@localhost:5432/postgres
