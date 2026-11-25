@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { after } from "next/server";
 import { AnalyzerNav } from "@/components/currency-analyzer/analyzer-nav";
+import { ByCurrency } from "@/components/currency-analyzer/by-currency";
 import { Change, PaidCard, UnpaidCard } from "@/components/currency-analyzer/gain-cards";
 import { OldRatesAlert } from "@/components/currency-analyzer/old-rates-alert";
 import { PageHeader } from "@/components/layouts/page-header";
@@ -10,7 +11,6 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Pagination } from "@/components/shared/pagination";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requireUser } from "@/lib/auth";
 import { formatCalendarDate, taxYearLabel } from "@/lib/dates";
 import { formatCurrency } from "@/lib/format";
@@ -49,11 +49,6 @@ export default async function MyIncomePage({ searchParams }: Props) {
   const pages = Math.max(1, Math.ceil(paid.length / PAGE_SIZE));
   const page = Math.min(parseListParams(raw).page, pages);
   const shown = paid.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  const fees = isZero(totals.fees) ? "0" : subtract("0", totals.fees);
-  const cost = (amount: string) => (
-    <span className="font-mono font-medium tabular-nums">{formatCurrency(amount, base)}</span>
-  );
-
   return (
     <div className="grid grid-cols-1 gap-6">
       <PageHeader
@@ -95,7 +90,9 @@ export default async function MyIncomePage({ searchParams }: Props) {
           <Change amount={totals.margin} currency={base} />
         </Tile>
         <Tile label="Fees and charges" note="Gateway fees and bank charges">
-          {cost(fees)}
+          <span className="font-mono font-medium tabular-nums">
+            {formatCurrency(isZero(totals.fees) ? "0" : subtract("0", totals.fees), base)}
+          </span>
         </Tile>
         <Tile label="Unpaid invoices" note={`As of ${formatCalendarDate(today)}, not final`}>
           <Change amount={gains.unpaidMovement} currency={base} />
@@ -124,40 +121,7 @@ export default async function MyIncomePage({ searchParams }: Props) {
       {byCurrency.length > 0 && (
         <section className="grid grid-cols-1 gap-3">
           <h2 className="text-lg md:text-xl">By currency</h2>
-          <div className="rounded-lg border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Currency</TableHead>
-                  <TableHead className="text-right">Payments</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead className="text-right">Movement</TableHead>
-                  <TableHead className="text-right">Margin</TableHead>
-                  <TableHead className="text-right">Fees</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {byCurrency.map((row) => (
-                  <TableRow key={row.code}>
-                    <TableCell>{row.code}</TableCell>
-                    <TableCell className="text-right tabular-nums">{row.payments}</TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">
-                      {formatCurrency(row.amount, row.code)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Change amount={row.movement} currency={base} word={false} />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Change amount={row.margin} currency={base} word={false} />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {cost(isZero(row.fees) ? "0" : subtract("0", row.fees))}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <ByCurrency rows={byCurrency} base={base} />
         </section>
       )}
       <section className="grid grid-cols-1 gap-3">
