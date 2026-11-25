@@ -3,7 +3,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { runAsUser } from "@/db/run-as-user";
 import { auditLogs, expenseRecords, incomeRecords, taxCalculations, users } from "@/db/schema";
 import { taxYearStartFor } from "@/lib/dates";
-import { deleteCalculation, estimate, prefill, saveCalculation } from "@/server/services/tax";
+import { deleteCalculation, estimate, prefill, saveCalculation, quickEstimate } from "@/server/services/tax";
 import { calculatorAvailable, currentRules } from "@/server/services/tax-engine/rules";
 import { type TaxFormValues, taxFormSchema } from "@/validations/tax";
 import { createTestDb, createUsers, type TestDb } from "../helpers";
@@ -170,6 +170,64 @@ describe("the review gate", () => {
   ] as const)("in %s with %s rules: available %s", (mode, status, available) => {
     vi.stubEnv("NODE_ENV", mode);
     expect(calculatorAvailable({ ...currentRules, status })).toBe(available);
+  });
+});
+
+describe("the owner's choice to show unchecked rules", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it.each([
+    ["true", true],
+    ["false", false],
+    ["", false],
+    ["TRUE", false],
+    ["1", false],
+  ])("%j shows them in production: %s", (choice, shown) => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("SHOW_UNREVIEWED_RULES", choice);
+    expect(calculatorAvailable()).toBe(shown);
+  });
+});
+
+describe("the estimate on the dashboard", () => {
+  const profile = { ageGroup: "under_60", regime: "new_regime" as string | null, presumptiveTaxation: false };
+  const quick = (change: Partial<typeof profile> | null = {}, userId = alice) =>
+    runAsUser(db, userId, (tx) => quickEstimate(tx, userId, currentRules, change && { ...profile, ...change }));
+
+  it("is the tax on the records so far", async () => {
+    await addIncome("1500000");
+    expect(await quick()).toEqual({ totalTax: "109200", regime: "new_regime", assumed: false, partial: false });
+    expect(await quick({ regime: "old_regime" })).toMatchObject({ totalTax: "273000", regime: "old_regime" });
+  });
+
+  it("is the lower of the two without a choice", async () => {
+    await addIncome("1500000");
+    expect(await quick(null)).toEqual({ totalTax: "109200", regime: "new_regime", assumed: true, partial: false });
+    expect(await quick({ regime: null })).toMatchObject({ regime: "new_regime", assumed: false });
+  });
+
+  it("leaves a minor's interest out", async () => {
+    await addIncome("1300000");
+    await addIncome("500000", { category: "interest" });
+    expect((await quick({ ageGroup: "under_18" }))!.totalTax).toBe("78000");
+    expect((await quick())!.totalTax).not.toBe("78000");
+  });
+
+  it("says when some income is not included", async () => {
+    await addIncome("100");
+    await addIncome("100", { category: "royalty" });
+    expect(await quick()).toMatchObject({ partial: true });
+  });
+
+  it("is not guessed without records, or under the presumptive scheme", async () => {
+    expect(await quick()).toBeNull();
+    await addIncome("1500000");
+    expect(await quick({ presumptiveTaxation: true })).toBeNull();
+  });
+
+  it("is private", async () => {
+    await addIncome("1500000");
+    expect(await quick({}, bob)).toBeNull();
   });
 });
 

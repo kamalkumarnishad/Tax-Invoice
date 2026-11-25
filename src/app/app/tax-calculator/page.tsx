@@ -50,9 +50,9 @@ export default async function TaxCalculatorPage() {
       <PageHeader title="Tax calculator" description={`${currentRules.label}. Both regimes are compared.`} />
       {!reviewed && (
         <Alert>
-          <AlertTitle>For testing only</AlertTitle>
+          <AlertTitle>Estimates only</AlertTitle>
           <AlertDescription>
-            A chartered accountant has not checked these rules yet. This page is switched off in production until then.
+            A chartered accountant has not checked these rules yet. Have the result verified before you file or pay.
           </AlertDescription>
         </Alert>
       )}

@@ -1,11 +1,11 @@
 import "server-only";
 import { and, count, eq, ne, sql, sum } from "drizzle-orm";
 import { auditLogs, expenseRecords, incomeRecords, taxCalculations } from "@/db/schema";
-import { add, plain } from "@/lib/money";
+import { add, compare, plain } from "@/lib/money";
 import { type TaxFormInput, toTaxInput } from "@/validations/tax";
 import { type ActionResult, done, fail, ok, type Tx } from "./shared";
 import { calculate } from "./tax-engine/calculator";
-import type { Outcome, RuleSet } from "./tax-engine/types";
+import type { AgeGroup, Outcome, Regime, RuleSet } from "./tax-engine/types";
 
 /** The engine is for India, so only records kept in rupees count. */
 const CURRENCY = "INR";
@@ -63,6 +63,56 @@ export type Prefill = Awaited<ReturnType<typeof prefill>>;
 
 export function estimate(rules: RuleSet, form: TaxFormInput): Outcome {
   return calculate(rules, toTaxInput(form));
+}
+
+type Profile = { ageGroup: string; regime: string | null; presumptiveTaxation: boolean };
+
+export type QuickEstimate = { totalTax: string; regime: Regime; assumed: boolean; partial: boolean };
+
+/**
+ * The tax on what has been recorded so far, or null when that cannot be said
+ * without asking. Without a profile it is the lower of the two regimes.
+ */
+export async function quickEstimate(
+  tx: Tx,
+  userId: string,
+  rules: RuleSet,
+  profile: Profile | null,
+): Promise<QuickEstimate | null> {
+  // Whether the scheme applies is for the user to confirm in the calculator.
+  if (profile?.presumptiveTaxation) return null;
+  const figures = await prefill(tx, userId, rules.taxYearStart);
+  const zero = (amount: string) => plain(amount) === "0";
+  if (zero(figures.receipts) && zero(figures.interest) && zero(figures.expenses)) return null;
+
+  const outcome = calculate(rules, {
+    ageGroup: (profile?.ageGroup ?? "under_60") as AgeGroup,
+    receipts: figures.receipts,
+    method: "actual",
+    expenses: figures.expenses,
+    cashReceipts: "0",
+    declaredProfit: "0",
+    professionConfirmed: false,
+    salary: "0",
+    savingsInterest: "0",
+    otherInterest: figures.interest,
+    savings: "0",
+    nps: "0",
+    healthSelf: "0",
+    healthParents: "0",
+    parentsSenior: false,
+    taxDeducted: figures.taxDeducted,
+  });
+  if (!outcome.ok) return null;
+  const { new_regime: newer, old_regime: older } = outcome.results;
+  const lower = compare(older.totalTax, newer.totalTax) < 0 ? older : newer;
+  const chosen = profile?.regime === "old_regime" ? older : profile?.regime === "new_regime" ? newer : lower;
+  return {
+    totalTax: chosen.totalTax,
+    regime: chosen.regime,
+    assumed: !profile,
+    partial: !zero(figures.unplacedIncome) || figures.otherCurrencyRecords > 0,
+  };
 }
 
 /** Recalculates before saving, so a figure from the browser is never stored. */

@@ -20,6 +20,8 @@ export const env = createEnv({
     EMAIL_FROM: requiredInProduction(z.string().min(3)),
     /** Sent by the scheduler that starts the daily jobs. */
     CRON_SECRET: requiredInProduction(z.string().min(32)),
+    /** The owner's choice to show tax figures before an accountant has checked the rules. */
+    SHOW_UNREVIEWED_RULES: z.enum(["true", "false"]).optional(),
   },
   client: {},
   experimental__runtimeEnv: {},

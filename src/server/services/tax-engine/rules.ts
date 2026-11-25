@@ -4,9 +4,14 @@ import type { RuleSet } from "./types";
 
 export const currentRules: RuleSet = india202627;
 
-/** In production, rules a chartered accountant has not checked are switched off. */
+/**
+ * In production, rules a chartered accountant has not checked are switched off,
+ * unless the owner has chosen to show them. Every page then says that they are
+ * unchecked.
+ */
 export function reviewed(status: RuleSet["status"]): boolean {
-  return status === "approved" || process.env.NODE_ENV !== "production";
+  if (status === "approved" || process.env.NODE_ENV !== "production") return true;
+  return process.env.SHOW_UNREVIEWED_RULES === "true";
 }
 
 export function calculatorAvailable(rules: RuleSet = currentRules): boolean {

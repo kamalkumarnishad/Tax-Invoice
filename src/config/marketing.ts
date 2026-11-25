@@ -14,6 +14,9 @@ import {
   Wallet,
 } from "lucide-react";
 
+// Read when the site is built. Until the rules are checked or the owner shows them, these are not available.
+const taxFigures = process.env.SHOW_UNREVIEWED_RULES === "true";
+
 /** `available: false` shows a "Planned" label, so the site never claims unbuilt features. */
 export type Feature = { title: string; description: string; icon: LucideIcon; available: boolean };
 
@@ -34,7 +37,7 @@ export const features: Feature[] = [
     title: "Tax calculator",
     description: "Rule-based estimates for India under the new and old regimes, with every step shown.",
     icon: Calculator,
-    available: false,
+    available: taxFigures,
   },
   {
     title: "Multi-currency income",
@@ -70,7 +73,7 @@ export const features: Feature[] = [
     title: "Compliance calendar",
     description: "Advance tax, return and GST dates with reminders before each one.",
     icon: CalendarClock,
-    available: false,
+    available: taxFigures,
   },
   {
     title: "AI tax assistant",

@@ -1,7 +1,8 @@
 # India tax rules for FY 2026-27
 
-**Status: approved for coding by the project owner on 23 November 2026. Not yet checked by a chartered accountant, so
-the calculator is switched off in production.** Researched 23 November 2026. This is not tax advice. The plan (section 18.3) requires a qualified tax
+**Status: approved for coding by the project owner on 23 November 2026. Not yet checked by a chartered accountant.
+In production the calculator is hidden, unless the owner sets `SHOW_UNREVIEWED_RULES`, and then every page says that
+the rules are unchecked.** Researched 23 November 2026. This is not tax advice. The plan (section 18.3) requires a qualified tax
 professional to validate these rules before users see any estimate.
 
 Applies to income from 1 April 2026 to 31 March 2027. The Income-tax Act 2025 replaced the 1961 Act from
@@ -69,7 +70,7 @@ Two limits on this research:
 
 - Rebate, section 156: up to ₹12,500 for resident individuals with income up to ₹5,00,000. There is no marginal
   relief above it (B).
-- Age matters, and the app does not ask for it yet.
+- Age matters, so the app asks for it. Under 18, see section 14.
 
 ## 4. Surcharge and cess
 
@@ -210,6 +211,33 @@ These become the tax engine's tests. Resident individual under 60, no special-ra
 - The 57th GST Council release [5] changes none of these dates.
 - Like the calculator, statutory dates stay off in production until a chartered accountant has checked them.
 
+## 14. People under 18 (added 25 November 2026)
+
+| Rule | Mark |
+|---|---|
+| Income from a minor's own work, or their skill, talent, specialised knowledge or experience, is not added to a parent's: section 99(1)(c) | B |
+| It is taxed at the same rates and with the same rebate as for other individuals | C |
+| Interest is added to the income of the parent with the higher income | C |
+| Not added with a disability under section 154 | B |
+| If neither parent is living, a guardian files and it is not added | C |
+| A parent or guardian files as representative assessee | C, sources partly disagree |
+| What happens in the year someone turns 18 | X |
+
+- The calculator taxes a minor's work income as their own, and leaves interest out unless the user says it is theirs.
+- The age asked for is on the last day of the year, so "under 18" means under 18 all year.
+- The parent's ₹1,500 exemption is the parent's, so it is not worked out here.
+
+## 15. Losses (added 25 November 2026)
+
+A professional loss counts as no income. It is not set against other income or carried forward, so the estimate can be
+too high and never too low. The page says so.
+
+## 16. How the arithmetic was checked
+
+A second calculator was written in Python from this sheet alone, and compared with the app on 20,819 sets of figures in
+both regimes, including every threshold in steps of five rupees. All 41,638 results were the same. 300 of the sets are
+kept as a test. **This checks the arithmetic, not the rules.**
+
 ## Sources
 
 1. [Finance Bill 2026 explanatory memorandum, third-party copy](https://www.caalley.com/budget2026/memo.pdf)
@@ -250,3 +278,7 @@ These become the tax engine's tests. Resident individual under 60, no special-ra
     and [aggregate turnover](https://gstcouncil.gov.in/sites/default/files/e-version-gst-flyers/Aggregate%20Turnover..pdf)
 18. [CBIC FAQ on GST, third edition, December 2018](https://gstcouncil.gov.in/sites/default/files/2024-02/final-gst-fq-31218.pdf)
 19. [Unadhi: GST for freelancers with foreign clients, October 2026](https://unadhi.com/guides/freelancer-gst-registration-2026-export-of-services.html)
+20. [EZTax: section 99](https://eztax.in/income-tax-act-2025/section-99),
+    [Outlook Money](https://www.outlookmoney.com/tax/teen-cricketer-vaibhav-sooryavanshi-earning-in-crores-how-income-tax-rules-apply-to-minors-in-india),
+    [Business Today](https://businesstoday.in/personal-finance/tax/story/vaibhav-sooryavanshis-rs7-cr-earnings-raise-a-tax-question-how-is-income-of-minors-taxed-in-india-534672-2026-06-03)
+    and [StudyCafe](https://studycafe.in/child-actor-influencer-or-investor-know-how-minors-income-is-taxed-423925.html) on minors

@@ -39,9 +39,9 @@ See `docs/deployment.md`. Pushing to GitHub runs the tests and deploys nothing.
 
 ## Tax rules
 
-The rules, their sources and how sure each one is are in `docs/tax-rules-fy-2026-27.md`. The calculator gives no
-figures in production until a chartered accountant has checked them and the rule set in
-`src/server/services/tax-engine/jurisdictions` is marked `approved`.
+The rules, their sources and how sure each one is are in `docs/tax-rules-fy-2026-27.md`. In production the calculator
+is hidden until a chartered accountant has checked them and the rule set in
+`src/server/services/tax-engine/jurisdictions` is marked `approved`, or the owner sets `SHOW_UNREVIEWED_RULES=true`.
 
 ## Data access
 

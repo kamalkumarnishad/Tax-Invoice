@@ -71,6 +71,7 @@ Remove-Item Env:DATABASE_URL
 | `RESEND_API_KEY` | from step 2 |
 | `EMAIL_FROM` | `TaxPilot AI <onboarding@resend.dev>` |
 | `CRON_SECRET` | from step 3 |
+| `SHOW_UNREVIEWED_RULES` | `true` to show tax, GST and deadline figures. Leave it out to keep them hidden |
 
 5. Press **Deploy**.
 6. If the address is not the one in `BETTER_AUTH_URL`, correct it and redeploy.
@@ -98,7 +99,8 @@ $secret = Read-Host "CRON_SECRET"; Invoke-RestMethod "https://<name>.vercel.app/
 - [ ] An invoice: issue, PDF, part payment, full payment
 - [ ] Reports and the three CSV files
 - [ ] Currency analyzer and My income
-- [ ] **The tax calculator, GST limit and checks, and tax dates show that they are under review**
+- [ ] **Tax figures:** with `SHOW_UNREVIEWED_RULES` every page says they are unchecked. Without it they are hidden
+- [ ] The tax calculator with each age, including under 18
 - [ ] A task, and its reminder email
 - [ ] Both daily jobs, the next day, in **Logs**
 - [ ] After ten minutes unused, the site still opens
@@ -125,6 +127,8 @@ changes are not undone by this, so restore the Neon branch or snapshot only if d
 - [ ] Privacy policy and terms, reviewed by a lawyer, including India's data protection rules
 - [x] Account deletion and data download
 - [ ] A lawyer has said whether data must be kept for a year after deletion (rule 8(3), expected from May 2027)
+- [ ] A lawyer has said how to handle people under 18. From about May 2027 the data protection Act is expected to ask
+      for a parent's verifiable consent, and agreements with minors need care today
 - [ ] Vercel Pro, as the free plan is not for commercial use
 - [ ] Neon Launch, with restore history of several days. The free plan keeps six hours
 - [ ] A new Neon project and **new secrets**, not the test ones

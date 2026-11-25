@@ -18,8 +18,23 @@ import { getCalendar } from "@/server/queries/compliance";
 import { getTaxProfile, getUserDefaults } from "@/server/queries/settings";
 import { isOpen } from "@/server/services/compliance/calendar";
 import { summarise } from "@/server/services/dashboard";
+import { type QuickEstimate, quickEstimate } from "@/server/services/tax";
+import { calculatorAvailable, currentRules } from "@/server/services/tax-engine/rules";
+import { regimes } from "@/validations/settings";
 
 export const metadata: Metadata = { title: "Dashboard" };
+
+/** What the figure rests on, so it is not taken for the year's final tax. */
+function estimateNote({ regime, assumed, partial }: QuickEstimate): string {
+  return [
+    `On records so far, ${regimes[regime].toLowerCase()}`,
+    assumed && "age 18 to 59 assumed",
+    partial && "some income not included",
+    currentRules.status !== "approved" && "rules not checked by an accountant",
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
 
 export default async function DashboardPage() {
   const user = await requireUser();
@@ -31,6 +46,11 @@ export default async function DashboardPage() {
   const next = calendar.items.filter(isOpen).slice(0, 3);
   const year = taxYearStartFor(today);
   const summary = await withUser(user.id, (tx) => summarise(tx, { userId: user.id, currency, year }));
+  // The rules are for one year, and for income kept in rupees.
+  const estimable = calculatorAvailable() && currency === "INR" && year === currentRules.taxYearStart;
+  const estimate = estimable
+    ? await withUser(user.id, (tx) => quickEstimate(tx, user.id, currentRules, profile))
+    : null;
 
   const show = (amount: string) => <CurrencyDisplay amount={amount} currency={currency} />;
   const hasPending = plain(summary.pending) !== "0";
@@ -87,8 +107,8 @@ export default async function DashboardPage() {
         <StatCard
           title="Estimated tax"
           icon={Calculator}
-          value={<span className="font-mono">—</span>}
-          note="See the tax calculator"
+          value={estimate ? <CurrencyDisplay amount={estimate.totalTax} currency="INR" /> : <span className="font-mono">—</span>}
+          note={estimate ? estimateNote(estimate) : "See the tax calculator"}
         />
       </div>
       {summary.otherCurrencyRecords > 0 && (
