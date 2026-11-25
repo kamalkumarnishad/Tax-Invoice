@@ -10,7 +10,7 @@ Next.js 15 (App Router), TypeScript, Tailwind CSS 4, shadcn/ui, Drizzle ORM, Pos
 
 ## Development
 
-Needs Node.js 22 or newer.
+Needs Node.js 24.
 
 ```bash
 npm install

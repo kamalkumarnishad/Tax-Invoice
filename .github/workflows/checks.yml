@@ -1,0 +1,69 @@
+# Runs the tests on every push. It deploys nothing and uses no secrets.
+name: Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app:
+    name: Types, lint, tests and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - run: npx drizzle-kit check
+      - run: npm audit --audit-level=high
+
+  postgres:
+    name: Tests on a real Postgres
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # As a hosted database does it: an owner who is not a superuser.
+      - name: Create the owner
+        run: |
+          psql postgres://postgres:postgres@localhost:5432/postgres -c \
+            "create role app_owner login password 'owner' createrole createdb bypassrls nosuperuser; grant pg_signal_backend to app_owner"
+      - name: Test
+        env:
+          TEST_DATABASE_URL: postgres://app_owner:owner@localhost:5432/postgres
+        run: npx vitest run tests/integration --no-file-parallelism
