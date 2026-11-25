@@ -1,3 +1,4 @@
+import { EventEmitter } from "node:events";
 import { sql } from "drizzle-orm";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { createPool } from "@/db/pool";
@@ -14,6 +15,14 @@ describe("the connection pool", () => {
     const lost = new Error("terminating connection due to administrator command");
     expect(() => pool.emit("error", lost, undefined as never)).not.toThrow();
     expect(warn).toHaveBeenCalledWith("A database connection was lost:", lost.message);
+    await pool.end();
+  });
+
+  it("survives losing a connection in use", async () => {
+    const pool = createPool("postgres://nobody@127.0.0.1:1/none");
+    const client = new EventEmitter();
+    pool.emit("connect", client as never);
+    expect(() => client.emit("error", new Error("Connection terminated unexpectedly"))).not.toThrow();
     await pool.end();
   });
 

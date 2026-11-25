@@ -18,9 +18,11 @@ export function createPool(connectionString: string): Pool {
     query_timeout: 30_000,
     keepAlive: true,
   });
-  // Without a listener, losing an unused connection would stop the whole server.
-  // The pool has already dropped it, and opens a new one when it is needed.
+  // Without a listener for both, losing a connection would stop the whole server.
+  // Unused ones are dropped by the pool, which opens new ones when they are needed.
   pool.on("error", (error) => console.warn("A database connection was lost:", error.message));
+  // For one in use, its query fails as well, and that is what the user is told about.
+  pool.on("connect", (client) => client.on("error", () => {}));
   // On Vercel, keeps a copy of the app awake until its unused connections are closed. Elsewhere does nothing.
   attachDatabasePool(pool);
   return pool;
