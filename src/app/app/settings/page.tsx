@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/layouts/page-header";
 import { BusinessForm } from "@/components/settings/business-form";
+import { DeleteForm, DownloadForm } from "@/components/settings/data-panel";
 import { PreferencesForm } from "@/components/settings/preferences-form";
 import { ProfileForm } from "@/components/settings/profile-form";
 import { ChangePasswordForm, SessionList } from "@/components/settings/security-panel";
@@ -19,7 +20,7 @@ import type { TaxProfileInput } from "@/validations/settings";
 
 export const metadata: Metadata = { title: "Settings" };
 
-const tabs = ["profile", "business", "tax", "security"];
+const tabs = ["profile", "business", "tax", "security", "data"];
 
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const user = await requireUser();
@@ -71,11 +72,13 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     <div className="grid grid-cols-1 gap-6">
       <PageHeader title="Settings" />
       <Tabs key={tab} defaultValue={tab && tabs.includes(tab) ? tab : "profile"} className="gap-6">
-        <TabsList>
+        {/* Wraps on a phone, where five tabs do not fit in a row. */}
+        <TabsList className="max-sm:flex max-sm:h-auto! max-sm:w-full max-sm:flex-wrap max-sm:justify-start max-sm:[&>button]:h-9 max-sm:[&>button]:flex-none">
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="business">Business</TabsTrigger>
           <TabsTrigger value="tax">Tax profile</TabsTrigger>
           <TabsTrigger value="security">Security</TabsTrigger>
+          <TabsTrigger value="data">Your data</TabsTrigger>
         </TabsList>
         <TabsContent value="profile" className="grid grid-cols-1 gap-6">
           <SettingsCard title="Profile">
@@ -126,6 +129,24 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 current: session.id === current?.session.id,
               }))}
             />
+          </SettingsCard>
+        </TabsContent>
+        <TabsContent value="data" className="grid grid-cols-1 gap-6">
+          <SettingsCard
+            title="Download your data"
+            description="One ZIP file with your records as spreadsheets. It holds private details, so keep it safe."
+          >
+            <DownloadForm />
+          </SettingsCard>
+          <SettingsCard title="Delete your account" description="Removes your account and everything in it. This cannot be undone.">
+            <div className="grid gap-4">
+              <ul className="grid list-disc gap-1 pl-5 text-sm text-muted-foreground">
+                <li>Download your data first. You may have to keep tax records: GST law asks registered businesses to keep them for about six years.</li>
+                <li>Copies in our backups and email records go when those expire.</li>
+                <li>Invoices you have already sent stay with your clients.</li>
+              </ul>
+              <DeleteForm email={user.email} />
+            </div>
           </SettingsCard>
         </TabsContent>
       </Tabs>

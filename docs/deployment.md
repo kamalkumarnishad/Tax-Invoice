@@ -103,6 +103,7 @@ $secret = Read-Host "CRON_SECRET"; Invoke-RestMethod "https://<name>.vercel.app/
 - [ ] Both daily jobs, the next day, in **Logs**
 - [ ] After ten minutes unused, the site still opens
 - [ ] On a phone
+- [ ] Settings > Your data: download the ZIP, then, last of all, delete the account
 
 Do not enter real PAN or GSTIN numbers in Stage 1.
 
@@ -122,7 +123,8 @@ changes are not undone by this, so restore the Neon branch or snapshot only if d
 
 - [ ] A chartered accountant has approved `docs/tax-rules-fy-2026-27.md`, or tax figures stay hidden
 - [ ] Privacy policy and terms, reviewed by a lawyer, including India's data protection rules
-- [ ] Account deletion and data download
+- [x] Account deletion and data download
+- [ ] A lawyer has said whether data must be kept for a year after deletion (rule 8(3), expected from May 2027)
 - [ ] Vercel Pro, as the free plan is not for commercial use
 - [ ] Neon Launch, with restore history of several days. The free plan keeps six hours
 - [ ] A new Neon project and **new secrets**, not the test ones
