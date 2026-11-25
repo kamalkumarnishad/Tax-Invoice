@@ -9,8 +9,9 @@ export type Database = PgDatabase<PgQueryResultHKT, typeof schema>;
 
 async function connect(): Promise<Database> {
   if (env.DATABASE_URL) {
-    const { drizzle } = await import("drizzle-orm/neon-serverless");
-    return drizzle(env.DATABASE_URL, { schema });
+    const { drizzle } = await import("drizzle-orm/node-postgres");
+    const { createPool } = await import("@/db/pool");
+    return drizzle(createPool(env.DATABASE_URL), { schema });
   }
 
   // Development only: env validation requires DATABASE_URL in production.
