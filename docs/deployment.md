@@ -103,9 +103,11 @@ $secret = Read-Host "CRON_SECRET"; Invoke-RestMethod "https://<name>.vercel.app/
 - [ ] Both daily jobs, the next day, in **Logs**
 - [ ] After ten minutes unused, the site still opens
 - [ ] On a phone
-- [ ] A second account sees nothing of the first (use a Resend test address of your own)
 
 Do not enter real PAN or GSTIN numbers in Stage 1.
+
+Only one account is possible in Stage 1, because Resend delivers only to you. That one user cannot see another's data
+is tested on a real Postgres by **Checks** on GitHub, and by hand with two accounts in Stage 2.
 
 ## Later deployments
 
