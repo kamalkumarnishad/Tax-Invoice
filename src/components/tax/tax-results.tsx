@@ -51,6 +51,7 @@ function RegimeCard({ result, lowest }: { result: TaxResult; lowest: boolean }) 
           {!isZero(result.salaryIncome) && (
             <Row label="Salary after standard deduction" amount={result.salaryIncome} />
           )}
+          {!isZero(result.loss ?? "0") && <Row label="Loss, counted as no income" amount={result.loss ?? "0"} />}
           {!isZero(result.interestIncome) && <Row label="Interest" amount={result.interestIncome} />}
           {result.deductions.map((line) => (
             <Row key={line.label} label={line.label} amount={line.amount} minus />
@@ -105,6 +106,8 @@ function RegimeCard({ result, lowest }: { result: TaxResult; lowest: boolean }) 
 type TaxResultsProps = { results: Record<Regime, TaxResult>; reviewed: boolean };
 
 export function TaxResults({ results, reviewed }: TaxResultsProps) {
+  // The same in both regimes. Calculations saved before these existed do not have them.
+  const { loss = "0", parentInterest = "0" } = results.new_regime;
   const difference = subtract(results.new_regime.totalTax, results.old_regime.totalTax);
   return (
     <section aria-label="Estimate" className="grid grid-cols-1 gap-4">
@@ -117,6 +120,18 @@ export function TaxResults({ results, reviewed }: TaxResultsProps) {
           This is an estimate, not tax advice. Have it verified by a qualified professional.
           {!reviewed && " A chartered accountant has not checked these rules yet."}
         </li>
+        {!isZero(loss) && (
+          <li>
+            The loss of <Rupees amount={loss} /> is not used here. It can often reduce other income or later years, so
+            your real tax may be lower. Ask a tax professional, and file on time to keep it.
+          </li>
+        )}
+        {!isZero(parentInterest) && (
+          <li>
+            Interest of <Rupees amount={parentInterest} /> is left out. A parent normally adds it to their own income.
+            Tax deducted from it belongs with the parent as well, so leave that out of TDS.
+          </li>
+        )}
         <li>With professional income, leaving the new regime can be reversed only once.</li>
         <li>Foreign income still to be received converts at SBI&apos;s rate on the last day of the tax year.</li>
         <li>Equipment may have to be depreciated over years instead of deducted at once. That is not worked out here.</li>

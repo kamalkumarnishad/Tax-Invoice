@@ -183,8 +183,8 @@ describe("professional income", () => {
     expect(run({ receipts: "1000000.50", expenses: "250000.25" }).professionalIncome).toBe("750000.25");
   });
 
-  it("does not guess at losses", () => {
-    expect(failure({ receipts: "100", expenses: "101" })).toMatch(/Losses/);
+  it("is nothing for a loss", () => {
+    expect(run({ receipts: "100", expenses: "101" })).toMatchObject({ professionalIncome: "0", loss: "1" });
   });
 });
 

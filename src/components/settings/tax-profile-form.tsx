@@ -9,6 +9,7 @@ import { toOptions } from "@/components/forms/options";
 import { registerWithValues } from "@/components/forms/register";
 import { SelectField } from "@/components/forms/select-field";
 import { TextField } from "@/components/forms/text-field";
+import { MinorNote } from "@/components/tax/minor-note";
 import { Button } from "@/components/ui/button";
 import { saveTaxProfileAction } from "@/server/actions/settings";
 import { ageGroups } from "@/server/services/tax-engine/types";
@@ -27,7 +28,7 @@ export function TaxProfileForm({ values, panLast4 }: TaxProfileFormProps) {
   const form = useForm<TaxProfileInput>({ resolver: zodResolver(taxProfileSchema), defaultValues: values });
   const { errors, isSubmitting } = form.formState;
   const field = registerWithValues(form, values);
-  const [hasLut, gstin] = form.watch(["hasLut", "gstin"]);
+  const [hasLut, gstin, ageGroup] = form.watch(["hasLut", "gstin", "ageGroup"]);
 
   const onSubmit = form.handleSubmit(async (input) => {
     const result = await saveTaxProfileAction(input);
@@ -60,6 +61,7 @@ export function TaxProfileForm({ values, panLast4 }: TaxProfileFormProps) {
         />
         <SelectField id="regime" label="Regime" options={toOptions(regimes)} {...field.text("regime")} />
       </div>
+      {ageGroup === "under_18" && <MinorNote />}
       <CheckboxField
         id="presumptiveTaxation"
         label="I use presumptive taxation"

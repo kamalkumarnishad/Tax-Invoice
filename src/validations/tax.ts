@@ -19,6 +19,7 @@ const taxInputSchema = z.object({
   salary: optionalAmount,
   savingsInterest: optionalAmount,
   otherInterest: optionalAmount,
+  interestIsOwn: z.boolean().optional(),
   savings: optionalAmount,
   nps: optionalAmount,
   healthSelf: optionalAmount,

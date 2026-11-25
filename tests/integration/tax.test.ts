@@ -110,7 +110,7 @@ describe("saved calculations", () => {
 
   it("are not saved when they cannot be worked out", async () => {
     const result = await runAsUser(db, alice, (tx) =>
-      saveCalculation(tx, alice, currentRules, parsed({ expenses: "9999999" })),
+      saveCalculation(tx, alice, currentRules, parsed({ method: "presumptive", professionConfirmed: false })),
     );
     expect(result.ok).toBe(false);
     expect(await db.select().from(taxCalculations)).toEqual([]);

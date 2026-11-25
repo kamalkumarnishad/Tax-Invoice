@@ -11,6 +11,7 @@ import { toOptions } from "@/components/forms/options";
 import { registerWithValues } from "@/components/forms/register";
 import { SelectField } from "@/components/forms/select-field";
 import { TextField } from "@/components/forms/text-field";
+import { MinorNote } from "@/components/tax/minor-note";
 import { TaxResults } from "@/components/tax/tax-results";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,7 +21,7 @@ import { type TaxFormInput, taxFormSchema, type TaxFormValues, taxMethods } from
 
 type AmountName = Exclude<
   keyof TaxFormValues,
-  "ageGroup" | "method" | "professionConfirmed" | "parentsSenior" | "scopeConfirmed"
+  "ageGroup" | "method" | "professionConfirmed" | "interestIsOwn" | "parentsSenior" | "scopeConfirmed"
 >;
 
 function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
@@ -44,6 +45,7 @@ export function TaxForm({ values, reviewed }: { values: TaxFormValues; reviewed:
   const { errors, isSubmitting } = form.formState;
   const field = registerWithValues(form, values);
   const presumptive = form.watch("method") === "presumptive";
+  const minor = form.watch("ageGroup") === "under_18";
 
   const amount = (name: AmountName, label: string, hint?: string) => (
     <TextField
@@ -99,6 +101,7 @@ export function TaxForm({ values, reviewed }: { values: TaxFormValues; reviewed:
                 options={toOptions(ageGroups)}
                 {...field.text("ageGroup")}
               />
+              {minor && <MinorNote />}
             </Section>
             <Section title="Professional income, in rupees">
               {amount("receipts", "Receipts before fees and TDS")}
@@ -124,6 +127,16 @@ export function TaxForm({ values, reviewed }: { values: TaxFormValues; reviewed:
               {amount("salary", "Salary before the standard deduction")}
               {amount("savingsInterest", "Savings account interest")}
               {amount("otherInterest", "Other interest")}
+              {minor && (
+                <div className="sm:col-span-2">
+                  <CheckboxField
+                    id="interestIsOwn"
+                    label="My interest is taxed in my own name"
+                    hint="Leave this empty in most cases: a parent normally adds it to theirs. Tick it only with a disability under section 154, or if neither parent is living. Ask a tax professional."
+                    {...field.check("interestIsOwn")}
+                  />
+                </div>
+              )}
             </Section>
             <Section
               title="Deductions"
@@ -144,7 +157,7 @@ export function TaxForm({ values, reviewed }: { values: TaxFormValues; reviewed:
               <CheckboxField
                 id="scopeConfirmed"
                 label="This covers my situation"
-                hint="I am an individual resident in India for FY 2026-27, with no capital gains, crypto, house property or farm income, and no losses."
+                hint="I am an individual resident in India for FY 2026-27, with no capital gains, crypto, house property or farm income."
                 aria-invalid={Boolean(errors.scopeConfirmed)}
                 {...field.check("scopeConfirmed")}
               />

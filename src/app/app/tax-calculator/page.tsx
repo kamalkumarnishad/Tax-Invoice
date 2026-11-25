@@ -85,6 +85,7 @@ export default async function TaxCalculatorPage() {
           salary: "",
           savingsInterest: "",
           otherInterest: blankIfZero(figures.interest),
+          interestIsOwn: false,
           savings: "",
           nps: "",
           healthSelf: "",

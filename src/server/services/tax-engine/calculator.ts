@@ -1,5 +1,5 @@
 import { Decimal } from "decimal.js";
-import type { AgeGroup, Band, Line, Outcome, Regime, RegimeRules, RuleSet, TaxInput, TaxResult } from "./types";
+import type { AgeGroup, Band, Line, Outcome, Regime, RegimeRules, RuleSet, SlabAge, TaxInput, TaxResult } from "./types";
 
 /** Pure and deterministic: the same rules and input always give the same result. */
 
@@ -12,6 +12,12 @@ const text = (value: Money) => value.toFixed();
 const percent = (value: Money, rate: Decimal.Value) => value.times(rate).dividedBy(100);
 const lower = (a: Money, b: Decimal.Value) => Money.min(a, b);
 const notNegative = (value: Money) => Money.max(value, 0);
+
+const slabAge = (age: AgeGroup): SlabAge => (age === "under_18" ? "under_60" : age);
+const isSenior = (age: AgeGroup) => age === "60_to_79" || age === "80_plus";
+
+/** Section 99: a minor's interest is normally a parent's income. What they earn by their own work is theirs. */
+const interestGoesToParent = (input: TaxInput) => input.ageGroup === "under_18" && !input.interestIsOwn;
 
 /** Section 516: drop paise, then round to the nearest ten rupees. */
 export function roundToTen(value: Money): Money {
@@ -52,19 +58,16 @@ function surchargeOn(tax: Money, income: Money, rules: RegimeRules, age: AgeGrou
   const surcharge = percent(tax, band.rate);
   // Tax plus surcharge may not exceed what is due exactly at the threshold,
   // plus the income above it. At the threshold the band below still applies.
-  const taxAtThreshold = slabTaxOn(money(band.above), rules.slabs[age]);
+  const taxAtThreshold = slabTaxOn(money(band.above), rules.slabs[slabAge(age)]);
   const dueAtThreshold = taxAtThreshold.plus(percent(taxAtThreshold, reached.at(-2)?.rate ?? 0));
   const cap = dueAtThreshold.plus(income.minus(band.above));
   return { rate: band.rate, surcharge, relief: notNegative(tax.plus(surcharge).minus(cap)) };
 }
 
-/** Professional income, or why it cannot be worked out. */
+/** Professional income, below zero for a loss, or why it cannot be worked out. */
 function professionalIncome(rules: RuleSet, input: TaxInput): Money | string {
   const receipts = money(input.receipts);
-  if (input.method === "actual") {
-    const profit = receipts.minus(input.expenses);
-    return profit.isNegative() ? "Expenses are more than receipts. Losses are not supported yet." : profit;
-  }
+  if (input.method === "actual") return receipts.minus(input.expenses);
 
   const { limit, limitLowCash, maxCashPercent, profitPercent } = rules.presumptive;
   const cash = money(input.cashReceipts);
@@ -81,7 +84,7 @@ function professionalIncome(rules: RuleSet, input: TaxInput): Money | string {
 
 function deductionLines(rules: RuleSet, input: TaxInput): Line[] {
   const limits = rules.deductionLimits;
-  const senior = input.ageGroup !== "under_60";
+  const senior = isSenior(input.ageGroup);
   const lines: [string, string, string][] = [
     ["Section 123: PPF, ELSS, life insurance and similar", input.savings, limits.savings],
     ["Section 124: extra NPS", input.nps, limits.nps],
@@ -93,7 +96,7 @@ function deductionLines(rules: RuleSet, input: TaxInput): Line[] {
     ],
     [
       "Section 153: savings interest",
-      input.savingsInterest,
+      interestGoesToParent(input) ? "0" : input.savingsInterest,
       senior ? limits.savingsInterestSenior : limits.savingsInterest,
     ],
   ];
@@ -105,7 +108,7 @@ function deductionLines(rules: RuleSet, input: TaxInput): Line[] {
 function advanceTax(rules: RuleSet, input: TaxInput, due: Money): TaxResult["advanceTax"] {
   const { threshold, instalments, presumptiveDue } = rules.advanceTax;
   // Section 403(3): not for a resident senior citizen without professional income.
-  const exempt = input.ageGroup !== "under_60" && money(input.receipts).isZero();
+  const exempt = isSenior(input.ageGroup) && money(input.receipts).isZero();
   if (exempt || due.lessThan(threshold)) return { required: false, instalments: [] };
   if (input.method === "presumptive") {
     return { required: true, instalments: [{ due: presumptiveDue, amount: text(due) }] };
@@ -123,13 +126,16 @@ function advanceTax(rules: RuleSet, input: TaxInput, due: Money): TaxResult["adv
   };
 }
 
-function calculateRegime(rules: RuleSet, regime: Regime, input: TaxInput, professional: Money): TaxResult {
+function calculateRegime(rules: RuleSet, regime: Regime, input: TaxInput, profit: Money): TaxResult {
   const regimeRules = rules.regimes[regime];
-  const bands = regimeRules.slabs[input.ageGroup];
+  const bands = regimeRules.slabs[slabAge(input.ageGroup)];
+  const professional = notNegative(profit);
 
   const salary = money(input.salary);
   const salaryIncome = salary.minus(lower(salary, regimeRules.standardDeduction));
-  const interest = money(input.savingsInterest).plus(input.otherInterest);
+  const allInterest = money(input.savingsInterest).plus(input.otherInterest);
+  const parentInterest = interestGoesToParent(input) ? allInterest : ZERO;
+  const interest = allInterest.minus(parentInterest);
   const gross = professional.plus(salaryIncome).plus(interest);
 
   const deductions = regimeRules.deductions ? deductionLines(rules, input) : [];
@@ -149,6 +155,8 @@ function calculateRegime(rules: RuleSet, regime: Regime, input: TaxInput, profes
   return {
     regime,
     professionalIncome: text(professional),
+    loss: text(notNegative(profit.negated())),
+    parentInterest: text(parentInterest),
     salaryIncome: text(salaryIncome),
     interestIncome: text(interest),
     grossTotalIncome: text(gross),

@@ -1,15 +1,22 @@
 /** Amounts and rates are decimal strings throughout. Nothing here is a float. */
 export type Amount = string;
 
-export const ageGroups = { under_60: "Under 60", "60_to_79": "60 to 79", "80_plus": "80 or over" } as const;
+export const ageGroups = {
+  under_18: "Under 18",
+  under_60: "18 to 59",
+  "60_to_79": "60 to 79",
+  "80_plus": "80 or over",
+} as const;
 export type AgeGroup = keyof typeof ageGroups;
+/** Under 18 has the same slabs as 18 to 59. What differs is whose income interest is. */
+export type SlabAge = Exclude<AgeGroup, "under_18">;
 export type Regime = "new_regime" | "old_regime";
 
 /** A rate that applies to the part of the income above `above`. */
 export type Band = { above: Amount; rate: Amount };
 
 export type RegimeRules = {
-  slabs: Record<AgeGroup, Band[]>;
+  slabs: Record<SlabAge, Band[]>;
   rebate: { incomeUpTo: Amount; max: Amount; marginalRelief: boolean };
   /** The rate of the highest band reached applies to the whole tax. */
   surcharge: Band[];
@@ -51,6 +58,8 @@ export type TaxInput = {
   salary: Amount;
   savingsInterest: Amount;
   otherInterest: Amount;
+  /** Under 18 only: interest is taxed as their own, not added to a parent's income. */
+  interestIsOwn?: boolean;
   savings: Amount;
   nps: Amount;
   healthSelf: Amount;
@@ -64,6 +73,10 @@ export type Line = { label: string; amount: Amount };
 export type TaxResult = {
   regime: Regime;
   professionalIncome: Amount;
+  /** Expenses above receipts. Counted as no income, and not set against anything else. */
+  loss?: Amount;
+  /** Under 18: interest that is normally added to a parent's income instead. */
+  parentInterest?: Amount;
   salaryIncome: Amount;
   interestIncome: Amount;
   grossTotalIncome: Amount;
