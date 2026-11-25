@@ -1,10 +1,11 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { APIError } from "better-auth/api";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import { eq } from "drizzle-orm";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import * as schema from "@/db/schema";
 import { siteConfig } from "@/config/site";
+import { eraseUser } from "@/server/services/account/erase";
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "@/validations/auth";
 
 type Email = { to: string; subject: string; text: string };
@@ -35,13 +36,44 @@ export function createAuth({ db, secret, baseURL, sendEmail }: CreateAuthOptions
         rateLimit: schema.rateLimits,
       },
     }),
-    advanced: { database: { generateId: "uuid" } },
+    advanced: {
+      database: { generateId: "uuid" },
+      // Already so in production. Said here so that the tests run the same way.
+      disableOriginCheck: false,
+    },
     user: {
       additionalFields: {
         // `input: false` stops these being set through sign-up or profile updates.
         role: { type: "string", input: false, defaultValue: "user" },
         isActive: { type: "boolean", input: false, defaultValue: true },
       },
+      deleteUser: {
+        enabled: true,
+        beforeDelete: async (user) => eraseUser(db, user.id),
+        afterDelete: async (user) => {
+          try {
+            await sendEmail({
+              to: user.email,
+              subject: `Your ${siteConfig.name} account is deleted`,
+              text: `Your account and its data have been deleted.
+
+Copies in backups and email records are removed when those expire.`,
+            });
+          } catch (error) {
+            console.error("Deletion notice not sent:", error instanceof Error ? error.message : "unknown error");
+          }
+        },
+      },
+    },
+    // This would delete an account as soon as a link is opened. Ours opens a page that asks first.
+    disabledPaths: ["/delete-user/callback"],
+    hooks: {
+      before: createAuthMiddleware(async (ctx) => {
+        // Only with the token from the email, which is sent after checking the password.
+        if (ctx.path === "/delete-user" && !ctx.body?.token) {
+          throw new APIError("BAD_REQUEST", { message: "Use the link in the email." });
+        }
+      }),
     },
     emailAndPassword: {
       enabled: true,
@@ -86,6 +118,8 @@ export function createAuth({ db, secret, baseURL, sendEmail }: CreateAuthOptions
         "/request-password-reset": { window: HOUR, max: 3 },
         "/send-verification-email": { window: 15 * MINUTE, max: 5 },
         "/change-password": { window: 15 * MINUTE, max: 5 },
+        "/verify-password": { window: 15 * MINUTE, max: 5 },
+        "/delete-user": { window: 15 * MINUTE, max: 5 },
       },
     },
     databaseHooks: {
