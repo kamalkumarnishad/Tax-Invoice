@@ -1,28 +1,25 @@
 import { Coins } from "lucide-react";
 import type { Metadata } from "next";
 import { after } from "next/server";
+import { AnalyzerNav } from "@/components/currency-analyzer/analyzer-nav";
 import { Calculator } from "@/components/currency-analyzer/calculator";
 import { Compare } from "@/components/currency-analyzer/compare";
 import { LatestTable } from "@/components/currency-analyzer/latest-table";
+import { OldRatesAlert } from "@/components/currency-analyzer/old-rates-alert";
 import { RangeControls } from "@/components/currency-analyzer/range-controls";
 import { Trend } from "@/components/currency-analyzer/trend";
 import { PageHeader } from "@/components/layouts/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/auth";
-import { daysBetween, formatCalendarDate } from "@/lib/dates";
-import { getDb } from "@/lib/db";
+import { formatCalendarDate } from "@/lib/dates";
 import { getAnalyzer } from "@/server/queries/currency-analyzer";
-import { refreshIfStale } from "@/server/services/currency-analyzer/refresh";
+import { refreshInBackground } from "@/server/services/currency-analyzer/background";
 import { FIRST_DAY } from "@/validations/currency-analyzer";
 
 export const metadata: Metadata = { title: "Currency analyzer" };
 // The first visit of all may load ten years of rates after the page is sent.
 export const maxDuration = 120;
-
-/** Easter is the longest time without a new rate. */
-const STALE_DAYS = 5;
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
@@ -39,15 +36,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-/** Runs once the page has been sent, so a slow or failing source never holds it up. */
-async function refreshInBackground() {
-  try {
-    await refreshIfStale(await getDb(), { now: new Date() });
-  } catch (error) {
-    console.error("Refreshing reference rates failed:", error instanceof Error ? error.message : "unknown error");
-  }
-}
-
 export default async function CurrencyAnalyzerPage({ searchParams }: Props) {
   const user = await requireUser();
   const analyzer = await getAnalyzer(user.id, await searchParams);
@@ -57,7 +45,7 @@ export default async function CurrencyAnalyzerPage({ searchParams }: Props) {
   if (!updated) {
     return (
       <div className="grid grid-cols-1 gap-6">
-        <PageHeader title="Currency analyzer" />
+        <PageHeader title="Currency analyzer" action={<AnalyzerNav current="Rates" />} />
         <EmptyState icon={Coins} title="Rates are loading" description="Reload this page in a minute." />
       </div>
     );
@@ -68,15 +56,9 @@ export default async function CurrencyAnalyzerPage({ searchParams }: Props) {
       <PageHeader
         title="Currency analyzer"
         description={`Daily reference rates, last updated for ${formatCalendarDate(updated)}`}
+        action={<AnalyzerNav current="Rates" />}
       />
-      {daysBetween(updated, today) > STALE_DAYS && (
-        <Alert>
-          <AlertTitle>These rates are old</AlertTitle>
-          <AlertDescription>
-            <p>New rates have not arrived since {formatCalendarDate(updated)}. The figures below use the saved ones.</p>
-          </AlertDescription>
-        </Alert>
-      )}
+      <OldRatesAlert updated={updated} today={today} />
       <Section title="Convert">
         <Calculator
           currencies={currencies}

@@ -1,8 +1,10 @@
 import "server-only";
 import { withUser } from "@/lib/db";
+import { currencyGains } from "@/server/services/currency-analyzer/gains";
 import { compareCurrencies, latestRates, pairHistory, rateOn } from "@/server/services/currency-analyzer/history";
 import { latestDate } from "@/server/services/currency-analyzer/refresh";
 import { parseAnalyzer } from "@/validations/currency-analyzer";
+import { presetRanges } from "@/validations/reports";
 import { getCurrencies, getUserDefaults } from "./settings";
 
 type Raw = Parameters<typeof parseAnalyzer>[0];
@@ -24,3 +26,15 @@ export async function getAnalyzer(userId: string, raw: Raw) {
 }
 
 export type Analyzer = Awaited<ReturnType<typeof getAnalyzer>>;
+
+export async function getCurrencyGains(userId: string, lastYear: boolean) {
+  const { currency: base, today } = await getUserDefaults(userId);
+  const [thisYear, previous] = presetRanges(today);
+  const { from, to } = lastYear ? previous! : thisYear!;
+  const range = { from, to };
+  const result = await withUser(userId, async (tx) => ({
+    updated: await latestDate(tx),
+    gains: await currencyGains(tx, { userId, currency: base, today, range }),
+  }));
+  return { ...result, base, today, range };
+}
