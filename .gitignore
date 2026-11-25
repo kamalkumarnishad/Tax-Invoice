@@ -19,3 +19,6 @@ next-env.d.ts
 # local tooling and planning notes (this repository is public)
 .claude/
 tax-app-final-plan.md
+
+# unrelated files kept in this folder
+dwarka_tts_script.txt
