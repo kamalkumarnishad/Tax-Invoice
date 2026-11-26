@@ -1,0 +1,12 @@
+# What the Vercel command-line tool must never upload from this folder.
+node_modules
+.next
+.pglite
+.claude
+.env
+.env.*
+!.env.example
+tax-app-final-plan.md
+dwarka_tts_script.txt
+*.tsbuildinfo
+coverage
