@@ -41,7 +41,11 @@ They are `BETTER_AUTH_SECRET`, `ENCRYPTION_KEY` and `CRON_SECRET`.
 
 ### 4. Create the tables
 
-In this folder, paste the **direct** connection string when asked:
+Vercel does this by itself on every deployment, before it builds the app (`buildCommand` in `vercel.json`). It uses
+`DATABASE_URL_UNPOOLED` when that is set, and otherwise `DATABASE_URL`. A change that fails stops the deployment, and
+the site stays as it was.
+
+To do it by hand instead, paste the **direct** connection string when asked:
 
 ```powershell
 $env:DATABASE_URL = Read-Host "Direct connection string"
@@ -115,7 +119,7 @@ is tested on a real Postgres by **Checks** on GitHub, and by hand with two accou
 ## Later deployments
 
 1. Check that **Checks** is green on GitHub.
-2. When `drizzle/` changed: in Neon, create a branch or snapshot first, then repeat step 4.
+2. When `drizzle/` changed: in Neon, create a branch or snapshot first. The deployment then changes the tables.
 3. In Vercel, open **Deployments** and create a deployment from `main`.
 
 **To go back:** in Vercel, open the last good deployment and choose **Instant Rollback** or **Promote**. Database
